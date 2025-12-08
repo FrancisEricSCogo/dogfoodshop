@@ -691,7 +691,12 @@
         });
 
         // Handle add product form with file upload
-        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+        // Check if listener already attached to prevent duplicates
+        const addProductForm = document.getElementById('addProductForm');
+        if (addProductForm && !addProductForm.hasAttribute('data-listener-attached')) {
+            addProductForm.setAttribute('data-listener-attached', 'true');
+            
+            addProductForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const imageFile = formData.get('image');
@@ -749,6 +754,15 @@
                 image: finalImagePath
             };
             
+            // Prevent double submission - disable submit button and check flag
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) {
+                return; // Already submitting, prevent double submission
+            }
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+            
             try {
                 const response = await fetch(`${API_BASE}/products/add_product.php`, {
                     method: 'POST',
@@ -776,6 +790,9 @@
                         text: result.error || 'Failed to add product',
                         confirmButtonColor: '#667eea'
                     });
+                    // Re-enable button on error
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
             } catch (error) {
                 Swal.fire({
@@ -784,8 +801,12 @@
                     text: 'Failed to add product: ' + error.message,
                     confirmButtonColor: '#667eea'
                 });
+                // Re-enable button on error
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
-        });
+            });
+        } // End of if statement for data-listener-attached check
 
         // Edit product function
         async function editProduct(productId) {
