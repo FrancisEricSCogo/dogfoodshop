@@ -675,28 +675,39 @@
             window.open(`../customer/product.html?id=${productId}`, '_blank');
         }
         
-        // Image preview for add form
-        document.getElementById('add-product-image').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('add-preview-img').src = e.target.result;
-                    document.getElementById('add-image-preview').style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                document.getElementById('add-image-preview').style.display = 'none';
-            }
-        });
-
         // Handle add product form with file upload
-        // Check if listener already attached to prevent duplicates
+        // Remove any existing listeners first, then add only one
         const addProductForm = document.getElementById('addProductForm');
-        if (addProductForm && !addProductForm.hasAttribute('data-listener-attached')) {
-            addProductForm.setAttribute('data-listener-attached', 'true');
+        if (addProductForm) {
+            // Clone form to remove ALL existing event listeners
+            const formClone = addProductForm.cloneNode(true);
+            addProductForm.parentNode.replaceChild(formClone, addProductForm);
             
-            addProductForm.addEventListener('submit', async (e) => {
+            // Get the new form reference
+            const newForm = document.getElementById('addProductForm');
+            
+            // Re-attach image preview listener (lost during clone)
+            const imageInput = document.getElementById('add-product-image');
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('add-preview-img').src = e.target.result;
+                            document.getElementById('add-image-preview').style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        document.getElementById('add-image-preview').style.display = 'none';
+                    }
+                });
+            }
+            
+            // Mark as having listener to prevent duplicates
+            newForm.setAttribute('data-listener-attached', 'true');
+            
+            newForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const imageFile = formData.get('image');
