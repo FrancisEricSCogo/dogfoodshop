@@ -520,65 +520,36 @@
     <script src="../../assets/js/auth.js"></script>
     <script src="../../assets/js/supplier.js"></script>
     <script>
-        // Helper function to resolve image paths
+        // Helper function to resolve image paths - use backend API
         function resolveImagePath(imagePath) {
             if (!imagePath) return null;
             
-            // If it's already a full URL, return as is
+            // If already a full URL, use it
             if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
                 return imagePath;
             }
             
-            // If it starts with /, check if it needs project root
-            if (imagePath.startsWith('/')) {
-                // If it's /uploads/..., it needs project root
-                if (imagePath.startsWith('/uploads/')) {
-                    const currentPath = window.location.pathname;
-                    let projectRoot = '/';
-                    const viewsIndex = currentPath.indexOf('/views/');
-                    if (viewsIndex > 0) {
-                        projectRoot = currentPath.substring(0, viewsIndex + 1);
-                    } else {
-                        const pathParts = currentPath.split('/').filter(p => p);
-                        if (pathParts.length > 0) {
-                            projectRoot = '/' + pathParts[0] + '/';
-                        }
-                    }
-                    return projectRoot + imagePath.substring(1); // Remove leading /
-                }
-                return imagePath; // Already has project root or is absolute
-            }
-            
-            // Relative path (uploads/products/...)
-            if (imagePath.startsWith('uploads/')) {
-                const currentPath = window.location.pathname;
-                let projectRoot = '/';
-                const viewsIndex = currentPath.indexOf('/views/');
-                if (viewsIndex > 0) {
-                    projectRoot = currentPath.substring(0, viewsIndex + 1);
-                } else {
-                    const pathParts = currentPath.split('/').filter(p => p);
-                    if (pathParts.length > 0) {
-                        projectRoot = '/' + pathParts[0] + '/';
-                    }
-                }
-                return projectRoot + imagePath;
-            }
-            
-            // Unknown format, try to construct path
-            const currentPath = window.location.pathname;
-            let projectRoot = '/';
-            const viewsIndex = currentPath.indexOf('/views/');
-            if (viewsIndex > 0) {
-                projectRoot = currentPath.substring(0, viewsIndex + 1);
+            // Extract filename from path
+            let filename = '';
+            if (imagePath.includes('products/')) {
+                filename = imagePath.split('products/').pop();
+            } else if (imagePath.includes('/')) {
+                filename = imagePath.split('/').pop();
             } else {
-                const pathParts = currentPath.split('/').filter(p => p);
-                if (pathParts.length > 0) {
-                    projectRoot = '/' + pathParts[0] + '/';
-                }
+                filename = imagePath;
             }
-            return projectRoot + imagePath;
+            
+            // Clean filename
+            filename = filename.split('?')[0].split('#')[0];
+            
+            // Construct URL using backend API
+            const apiBase = window.API_BASE || API_BASE || 'https://dogfoodshop.ccs4thyear.com/api';
+            return `${apiBase}/storage/products/${filename}`;
         }
+        
+        // Define API base URL
+        const API_BASE = 'https://dogfoodshop.ccs4thyear.com/api';
+        
         checkAuth();
         
         // Override loadSupplierProducts to use modern design
@@ -697,7 +668,12 @@
         });
 
         // Handle add product form with file upload
-        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+        // Check if listener already attached to prevent duplicates
+        const addProductForm = document.getElementById('addProductForm');
+        if (addProductForm && !addProductForm.hasAttribute('data-listener-attached')) {
+            addProductForm.setAttribute('data-listener-attached', 'true');
+            
+            addProductForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const imageFile = formData.get('image');
@@ -735,6 +711,15 @@
                 }
             }
             
+            // Prevent double submission - disable submit button
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) {
+                return; // Already submitting, prevent double submission
+            }
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+            
             // Create product
             const data = {
                 name: formData.get('name'),
@@ -754,16 +739,40 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Product added successfully!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Product added successfully!',
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
                     hideAddProductForm();
                     loadSupplierProducts();
                 } else {
-                    alert('Error: ' + result.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to add product',
+                        confirmButtonColor: '#667eea'
+                    });
+                    // Re-enable button on error
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
             } catch (error) {
-                alert('Failed to add product');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to add product: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
+                // Re-enable button on error
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
-        });
+            });
+        }
 
         // Edit product function
         async function editProduct(productId) {
@@ -994,27 +1003,79 @@
 
         // Add delete product function
         async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+            // Get product name for confirmation
+            let productName = 'this product';
+            try {
+                const productResponse = await fetch(`${API_BASE}/products/get_product.php?id=${productId}`);
+                const productData = await productResponse.json();
+                if (productData.success && productData.product) {
+                    productName = productData.product.name;
+                }
+            } catch (error) {
+                console.error('Error fetching product name:', error);
+            }
+            
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete "${productName}"? This action cannot be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            });
+            
+            if (!result.isConfirmed) {
                 return;
             }
             
+            // Show loading
+            Swal.fire({
+                title: 'Deleting...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
             try {
-                const response = await fetch(`${API_BASE}/products/delete_product.php`, {
+                const response = await fetch(`${API_BASE}/products/delete_product.php?id=${productId}`, {
                     method: 'DELETE',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ product_id: productId })
+                    headers: getAuthHeaders()
                 });
                 
-                const result = await response.json();
+                const deleteResult = await response.json();
                 
-                if (result.success) {
-                    alert('Product deleted successfully!');
+                if (deleteResult.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Product deleted successfully!',
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
                     loadSupplierProducts();
                 } else {
-                    alert('Error: ' + result.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: deleteResult.error || 'Failed to delete product',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
-                alert('Failed to delete product');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to delete product: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
 
