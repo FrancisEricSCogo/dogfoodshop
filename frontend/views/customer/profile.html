@@ -686,6 +686,9 @@
   <script src="../../assets/js/auth.js"></script>
   <script src="../../assets/js/cart.js"></script>
   <script>
+    // Define API base URL
+    const API_BASE = 'https://dogfoodshop.ccs4thyear.com/api';
+    
     let currentUser = null;
 
     function checkAuth() {
@@ -705,7 +708,7 @@
     async function loadProfile() {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://dogfoodshop.ccs4thyear.com/api/users/profile.php', {
+        const response = await fetch(`${API_BASE}/users/profile.php`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -731,13 +734,21 @@
           document.getElementById('city').value = user.city || '';
           document.getElementById('postal_code').value = user.postal_code || '';
           
-          // Set avatar
+          // Set avatar - use backend API
           const avatarImg = document.getElementById('avatar');
           const placeholder = document.querySelector('.avatar-placeholder');
           
           if (user.profile_pic) {
-            avatarImg.src = '../../uploads/' + user.profile_pic;
+            // Resolve avatar path using backend API
+            const apiBase = window.API_BASE || 'https://dogfoodshop.ccs4thyear.com/api';
+            const avatarUrl = `${apiBase}/storage/avatars/${user.profile_pic}`;
+            avatarImg.src = avatarUrl;
             avatarImg.style.display = 'block';
+            avatarImg.onerror = function() {
+              // If image fails to load, show placeholder
+              avatarImg.style.display = 'none';
+              if (placeholder) placeholder.style.display = 'flex';
+            };
             if (placeholder) placeholder.style.display = 'none';
           } else {
             avatarImg.style.display = 'none';
@@ -772,7 +783,7 @@
 
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://dogfoodshop.ccs4thyear.com/api/users/upload_avatar.php', {
+        const response = await fetch(`${API_BASE}/users/upload_avatar.php`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -825,7 +836,7 @@
 
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://dogfoodshop.ccs4thyear.com/api/users/profile.php', {
+        const response = await fetch(`${API_BASE}/users/profile.php`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
