@@ -533,44 +533,38 @@
                 </div>
             `;
             
-            // Helper function to resolve image path
+            // Helper function to resolve image path - use backend API
             function resolveImagePath(imagePath) {
                 if (!imagePath) return null;
                 
-                let imageSrc = imagePath;
-                
-                // If it's a relative path (uploads/products/...), add project root
-                if (imagePath.startsWith('uploads/')) {
-                    const currentPath = window.location.pathname;
-                    let projectRoot = '/';
-                    const viewsIndex = currentPath.indexOf('/views/');
-                    if (viewsIndex !== -1) {
-                        projectRoot = currentPath.substring(0, viewsIndex) + '/';
-                    }
-                    imageSrc = projectRoot + imagePath;
-                } else if (imagePath.startsWith('/uploads/')) {
-                    // Path starts with /uploads/ but needs project root
-                    const currentPath = window.location.pathname;
-                    let projectRoot = '/';
-                    const viewsIndex = currentPath.indexOf('/views/');
-                    if (viewsIndex !== -1) {
-                        projectRoot = currentPath.substring(0, viewsIndex) + '/';
-                    }
-                    imageSrc = projectRoot + imagePath.substring(1); // Remove leading /
+                // If already a full URL, use it
+                if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+                    return imagePath;
                 }
                 
-                if (imageSrc.startsWith('http://') || imageSrc.startsWith('https://') || imageSrc.startsWith('/')) {
-                    return imageSrc;
+                // Extract filename from path
+                let filename = '';
+                if (imagePath.includes('products/')) {
+                    filename = imagePath.split('products/').pop();
+                } else if (imagePath.includes('/')) {
+                    filename = imagePath.split('/').pop();
+                } else {
+                    filename = imagePath;
                 }
                 
-                return null;
+                // Clean filename
+                filename = filename.split('?')[0].split('#')[0];
+                
+                // Construct URL using backend API
+                const apiBase = window.API_BASE || API_BASE || 'https://dogfoodshop.ccs4thyear.com/api';
+                return `${apiBase}/storage/products/${filename}`;
             }
             
             // Fetch real-time stock for all products
             const cartWithStock = await Promise.all(cart.map(async (item) => {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await fetch(`https://dogfoodshop.ccs4thyear.com/api/products/get_product.php?id=${item.product_id}`, {
+                    const response = await fetch(`${API_BASE}/products/get_product.php?id=${item.product_id}`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -724,7 +718,7 @@
             // Fetch current stock
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`https://dogfoodshop.ccs4thyear.com/api/products/get_product.php?id=${productId}`, {
+                const response = await fetch(`${API_BASE}/products/get_product.php?id=${productId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
