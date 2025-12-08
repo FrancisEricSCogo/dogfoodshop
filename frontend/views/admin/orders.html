@@ -927,7 +927,12 @@
 
         async function updateSelectedOrders() {
             if (selectedOrderIds.length === 0) {
-                alert('Please select at least one order to update.');
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'No Orders Selected',
+                    text: 'Please select at least one order to update.',
+                    confirmButtonColor: '#667eea'
+                });
                 return;
             }
             
@@ -959,13 +964,32 @@
             
             if (invalidOrders.length > 0) {
                 const errorMsg = invalidOrders.map(o => 
-                    `Order ${o.orderNumber}: ${o.reason}`
-                ).join('\n');
-                alert(`Cannot update these orders:\n\n${errorMsg}\n\nOnly pending orders can be updated to "shipped" or "cancelled".`);
+                    `• Order ${o.orderNumber}: ${o.reason}`
+                ).join('<br>');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Orders',
+                    html: `Cannot update these orders:<br><br>${errorMsg}<br><br><strong>Only pending orders can be updated to "${newStatus}".</strong>`,
+                    confirmButtonColor: '#667eea',
+                    width: '600px'
+                });
                 return;
             }
             
-            if (!confirm(`Update ${selectedOrderIds.length} order(s) to "${newStatus}"?`)) {
+            const statusDisplay = newStatus === 'shipped' ? '🚚 Shipped' : '❌ Cancelled';
+            const result = await Swal.fire({
+                title: 'Update Order Status?',
+                html: `Are you sure you want to update <strong>${selectedOrderIds.length}</strong> order(s) to <strong>${statusDisplay}</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: newStatus === 'shipped' ? '#10b981' : '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: `Yes, update to ${newStatus}!`,
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            });
+            
+            if (!result.isConfirmed) {
                 return;
             }
             
@@ -973,6 +997,18 @@
             const originalText = updateBtn.innerHTML;
             updateBtn.disabled = true;
             updateBtn.innerHTML = '<span>⏳</span>Updating...';
+            
+            // Show loading alert
+            Swal.fire({
+                title: 'Updating Orders...',
+                text: `Updating ${selectedOrderIds.length} order(s)`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             try {
                 let successCount = 0;
@@ -1020,28 +1056,54 @@
                     }
                 }
                 
+                Swal.close(); // Close loading alert
+                
                 if (successCount > 0) {
                     if (failCount > 0) {
-                        let message = `Successfully updated ${successCount} order(s), but ${failCount} order(s) failed.\n\nErrors:\n${errorMessages.slice(0, 5).join('\n')}`;
-                        if (errorMessages.length > 5) {
-                            message += `\n... and ${errorMessages.length - 5} more error(s)`;
-                        }
-                        alert(message);
+                        // Partial success
+                        const errorList = errorMessages.slice(0, 5).map(msg => `• ${msg}`).join('<br>');
+                        const moreErrors = errorMessages.length > 5 ? `<br><br>... and ${errorMessages.length - 5} more error(s)` : '';
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: 'Partially Successful',
+                            html: `Successfully updated <strong>${successCount}</strong> order(s), but <strong>${failCount}</strong> order(s) failed.<br><br><strong>Errors:</strong><br>${errorList}${moreErrors}`,
+                            confirmButtonColor: '#667eea',
+                            width: '600px'
+                        });
                     } else {
-                        alert(`Successfully updated ${successCount} order(s)!`);
+                        // Full success
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: `Successfully updated ${successCount} order(s) to ${statusDisplay}!`,
+                            confirmButtonColor: '#667eea',
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
                     }
                     selectedOrderIds = [];
                     loadAllOrders();
                 } else {
-                    let message = `Failed to update all orders.\n\nErrors:\n${errorMessages.slice(0, 5).join('\n')}`;
-                    if (errorMessages.length > 5) {
-                        message += `\n... and ${errorMessages.length - 5} more error(s)`;
-                    }
-                    alert(message);
+                    // All failed
+                    const errorList = errorMessages.slice(0, 5).map(msg => `• ${msg}`).join('<br>');
+                    const moreErrors = errorMessages.length > 5 ? `<br><br>... and ${errorMessages.length - 5} more error(s)` : '';
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        html: `Failed to update all orders.<br><br><strong>Errors:</strong><br>${errorList}${moreErrors}`,
+                        confirmButtonColor: '#667eea',
+                        width: '600px'
+                    });
                 }
             } catch (error) {
                 console.error('Error updating orders:', error);
-                alert('Error updating orders. Please try again.');
+                Swal.close(); // Close loading alert
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating orders. Please try again.',
+                    confirmButtonColor: '#667eea'
+                });
             } finally {
                 updateBtn.disabled = false;
                 updateBtn.innerHTML = originalText;
@@ -1050,12 +1112,22 @@
 
         async function viewSelectedOrder() {
             if (selectedOrderIds.length === 0) {
-                alert('Please select an order to view details.');
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'No Order Selected',
+                    text: 'Please select an order to view details.',
+                    confirmButtonColor: '#667eea'
+                });
                 return;
             }
             
             if (selectedOrderIds.length > 1) {
-                alert('Please select only one order to view details.');
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Multiple Orders Selected',
+                    text: 'Please select only one order to view details.',
+                    confirmButtonColor: '#667eea'
+                });
                 return;
             }
             
@@ -1156,11 +1228,21 @@
                     
                     document.body.insertAdjacentHTML('beforeend', modalHtml);
                 } else {
-                    alert('Failed to load order details.');
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load order details.',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
                 console.error('Error loading order:', error);
-                alert('Error loading order details.');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error loading order details: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
 
