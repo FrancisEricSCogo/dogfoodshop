@@ -630,11 +630,21 @@
                     
                     document.body.insertAdjacentHTML('beforeend', modalHtml);
                 } else {
-                    alert('Failed to load order details.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load order details',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
                 console.error('Error loading order:', error);
-                alert('Failed to load order details.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load order details: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
 
@@ -655,6 +665,20 @@
 
         // Function to receive shipped order (changes status from shipped to completed)
         async function receiveShippedOrder(orderId) {
+            // Get order details for confirmation
+            let orderNumber = `Order #${orderId}`;
+            try {
+                const orderResponse = await fetch(`${API_BASE}/orders/get_order.php?id=${orderId}`, {
+                    headers: getAuthHeaders()
+                });
+                const orderData = await orderResponse.json();
+                if (orderData.success && orderData.order) {
+                    orderNumber = orderData.order.order_number || `Order #${orderId}`;
+                }
+            } catch (error) {
+                console.error('Error fetching order name:', error);
+            }
+            
             const button = event?.target;
             const originalText = button ? button.innerHTML : '';
             
@@ -662,6 +686,18 @@
                 button.disabled = true;
                 button.innerHTML = '<span class="loading-spinner"></span>Receiving...';
             }
+            
+            // Show loading alert
+            Swal.fire({
+                title: 'Receiving Order...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             try {
                 const API_BASE = 'https://dogfoodshop.ccs4thyear.com/api';
@@ -677,25 +713,43 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    if (button) button.innerHTML = '<span class="loading-spinner"></span>Received!';
-                    setTimeout(() => {
-                        alert('Order received successfully!');
-                        loadOrders();
-                    }, 500);
+                    Swal.close(); // Close loading alert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Received!',
+                        text: `${orderNumber} has been marked as received successfully!`,
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
+                    if (button) button.innerHTML = originalText;
+                    loadOrders();
                 } else {
+                    Swal.close(); // Close loading alert
                     if (button) {
                         button.disabled = false;
                         button.innerHTML = originalText;
                     }
-                    alert('Error: ' + result.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to receive order',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
                 console.error('Error receiving order:', error);
+                Swal.close(); // Close loading alert
                 if (button) {
                     button.disabled = false;
                     button.innerHTML = originalText;
                 }
-                alert('Failed to receive order');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to receive order. Please try again.',
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
 
