@@ -53,16 +53,24 @@ function hideAddProductForm() {
 // Wait for DOM to be ready
 function setupAddProductForm() {
     try {
-        // Check if we're on admin page - admin has its own handler
-        // Check multiple possible paths for admin page
+        // Check if we're on admin or supplier page - they have their own handlers
+        // Check multiple possible paths for admin/supplier pages
         const path = window.location.pathname.toLowerCase();
         const isAdminPage = path.includes('/admin/') || 
                           path.includes('/views/admin/') ||
                           path.includes('admin/products');
+        const isSupplierPage = path.includes('/supplier/') || 
+                              path.includes('/views/supplier/') ||
+                              path.includes('supplier/products');
         
         if (isAdminPage) {
             console.log('Admin page detected, skipping supplier.js form handler');
             return; // Skip - admin page has its own handler
+        }
+        
+        if (isSupplierPage) {
+            console.log('Supplier page detected, skipping supplier.js form handler');
+            return; // Skip - supplier page has its own handler
         }
         
         const addProductForm = document.getElementById('addProductForm');
