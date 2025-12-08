@@ -273,7 +273,36 @@ async function loadOrders() {
 }
 
 async function cancelOrder(orderId) {
-    if (!confirm('Are you sure you want to cancel this order?')) return;
+    // Get order details for confirmation
+    let orderNumber = `Order #${orderId}`;
+    try {
+        const orderResponse = await fetch(`${API_BASE}/orders/get_order.php?id=${orderId}`, {
+            headers: getAuthHeaders()
+        });
+        const orderData = await orderResponse.json();
+        if (orderData.success && orderData.order) {
+            orderNumber = orderData.order.order_number || `Order #${orderId}`;
+        }
+    } catch (error) {
+        console.error('Error fetching order name:', error);
+    }
+    
+    // Show confirmation dialog with SweetAlert
+    const result = await Swal.fire({
+        title: 'Cancel Order?',
+        html: `Are you sure you want to cancel <strong>${orderNumber}</strong>?<br><br>This action cannot be undone!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'Keep Order',
+        reverseButtons: true
+    });
+    
+    if (!result.isConfirmed) {
+        return;
+    }
     
     const button = event?.target;
     const originalText = button ? button.innerHTML : '';
@@ -282,6 +311,18 @@ async function cancelOrder(orderId) {
         button.disabled = true;
         button.innerHTML = '<span class="loading-spinner"></span>Cancelling...';
     }
+    
+    // Show loading alert
+    Swal.fire({
+        title: 'Cancelling...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
     
     try {
         const response = await fetch(`${API_BASE}/orders/update_order_status.php`, {
@@ -293,24 +334,44 @@ async function cancelOrder(orderId) {
         const result = await response.json();
         
         if (result.success) {
-            if (button) button.innerHTML = '<span class="loading-spinner"></span>Success!';
-            setTimeout(() => {
-                alert('Order cancelled');
+            Swal.close(); // Close loading alert
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Cancelled!',
+                text: `${orderNumber} has been cancelled successfully.`,
+                confirmButtonColor: '#667eea',
+                timer: 2000,
+                showConfirmButton: true
+            });
+            if (button) button.innerHTML = originalText;
+            if (typeof loadOrders === 'function') {
                 loadOrders();
-            }, 500);
+            }
         } else {
+            Swal.close(); // Close loading alert
             if (button) {
                 button.disabled = false;
                 button.innerHTML = originalText;
             }
-            alert('Error: ' + result.error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.error || 'Failed to cancel order',
+                confirmButtonColor: '#667eea'
+            });
         }
     } catch (error) {
+        Swal.close(); // Close loading alert
         if (button) {
             button.disabled = false;
             button.innerHTML = originalText;
         }
-        alert('Failed to cancel order');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to cancel order. Please try again.',
+            confirmButtonColor: '#667eea'
+        });
     }
 }
 
