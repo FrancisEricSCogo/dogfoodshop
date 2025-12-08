@@ -49,11 +49,24 @@ function hideAddProductForm() {
 }
 
 // Only add event listener if the form exists (products page)
+// Skip if on admin page (admin has its own handler)
 // Wait for DOM to be ready
 function setupAddProductForm() {
     try {
+        // Check if we're on admin page - admin has its own handler
+        const isAdminPage = window.location.pathname.includes('/admin/');
+        if (isAdminPage) {
+            return; // Skip - admin page has its own handler
+        }
+        
         const addProductForm = document.getElementById('addProductForm');
         if (addProductForm && typeof addProductForm.addEventListener === 'function') {
+            // Check if listener already exists (prevent duplicates)
+            if (addProductForm.hasAttribute('data-listener-attached')) {
+                return; // Already has listener
+            }
+            addProductForm.setAttribute('data-listener-attached', 'true');
+            
             addProductForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
