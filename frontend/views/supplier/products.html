@@ -547,9 +547,7 @@
             return `${apiBase}/storage/products/${filename}`;
         }
         
-        // Define API base URL
-        const API_BASE = 'https://dogfoodshop.ccs4thyear.com/api';
-        
+        // API_BASE is already defined in auth.js, no need to redeclare
         checkAuth();
         
         // Override loadSupplierProducts to use modern design
