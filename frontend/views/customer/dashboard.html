@@ -534,39 +534,28 @@
                                         if (!product.image) return '🐕';
                                         let imageSrc = product.image;
                                         
-                                        // If it's a relative path (uploads/products/...), add project root
-                                        if (product.image.startsWith('uploads/')) {
-                                            const currentPath = window.location.pathname;
-                                            let projectRoot = '/';
-                                            const viewsIndex = currentPath.indexOf('/views/');
-                                            if (viewsIndex > 0) {
-                                                projectRoot = currentPath.substring(0, viewsIndex + 1);
+                                        // If already a full URL, use it
+                                        if (imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) {
+                                            // Already a full URL, use as is
+                                        } else {
+                                            // Extract filename from path
+                                            let filename = '';
+                                            if (imageSrc.includes('products/')) {
+                                                filename = imageSrc.split('products/').pop();
+                                            } else if (imageSrc.includes('/')) {
+                                                filename = imageSrc.split('/').pop();
                                             } else {
-                                                const pathParts = currentPath.split('/').filter(p => p);
-                                                if (pathParts.length > 0) {
-                                                    projectRoot = '/' + pathParts[0] + '/';
-                                                }
+                                                filename = imageSrc;
                                             }
-                                            imageSrc = projectRoot + product.image;
-                                        } else if (product.image.startsWith('/uploads/')) {
-                                            const currentPath = window.location.pathname;
-                                            let projectRoot = '/';
-                                            const viewsIndex = currentPath.indexOf('/views/');
-                                            if (viewsIndex > 0) {
-                                                projectRoot = currentPath.substring(0, viewsIndex + 1);
-                                            } else {
-                                                const pathParts = currentPath.split('/').filter(p => p);
-                                                if (pathParts.length > 0) {
-                                                    projectRoot = '/' + pathParts[0] + '/';
-                                                }
-                                            }
-                                            imageSrc = projectRoot + product.image.substring(1);
+                                            
+                                            // Clean filename
+                                            filename = filename.split('?')[0].split('#')[0];
+                                            
+                                            // Construct URL using backend API
+                                            imageSrc = `${API_BASE}/storage/products/${filename}`;
                                         }
                                         
-                                        if (imageSrc.startsWith('http://') || imageSrc.startsWith('https://') || imageSrc.startsWith('/')) {
-                                            return `<img src="${imageSrc}" alt="${product.name}" onerror="this.parentElement.innerHTML='🐕'">`;
-                                        }
-                                        return '🐕';
+                                        return `<img src="${imageSrc}" alt="${product.name}" onerror="this.parentElement.innerHTML='🐕'">`;
                                     })()}
                                 </div>
                                 <div class="product-info">
