@@ -54,8 +54,14 @@ function hideAddProductForm() {
 function setupAddProductForm() {
     try {
         // Check if we're on admin page - admin has its own handler
-        const isAdminPage = window.location.pathname.includes('/admin/');
+        // Check multiple possible paths for admin page
+        const path = window.location.pathname.toLowerCase();
+        const isAdminPage = path.includes('/admin/') || 
+                          path.includes('/views/admin/') ||
+                          path.includes('admin/products');
+        
         if (isAdminPage) {
+            console.log('Admin page detected, skipping supplier.js form handler');
             return; // Skip - admin page has its own handler
         }
         
