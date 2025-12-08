@@ -606,18 +606,15 @@
                         if (product.image) {
                             const imageSrc = resolveImagePath(product.image);
                             if (imageSrc) {
-                                // Add debug logging and better error handling
+                                // Add error handling with fallback
                                 imageHtml = `<img src="${imageSrc}" alt="${product.name}" 
                                     style="width: 100%; height: 100%; object-fit: cover;"
                                     onerror="
-                                        console.error('Failed to load image for product ${product.id}:', '${imageSrc}');
-                                        console.log('Original image path:', '${product.image}');
+                                        // Image failed to load - show placeholder
+                                        console.warn('Image not found for product ${product.id}:', '${imageSrc}');
                                         this.parentElement.innerHTML='🐕';
                                     "
-                                    onload="console.log('Image loaded successfully for product ${product.id}:', '${imageSrc}')"
                                 >`;
-                            } else {
-                                console.warn('Could not resolve image path for product:', product.id, product.image);
                             }
                         }
                         
