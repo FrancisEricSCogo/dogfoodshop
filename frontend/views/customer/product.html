@@ -485,7 +485,7 @@
                     return;
                 }
 
-                const response = await fetch(`https://dogfoodshop.ccs4thyear.com/api/products/get_product.php?id=${productId}`);
+                const response = await fetch(`${API_BASE}/products/get_product.php?id=${productId}`);
                 const data = await response.json();
 
                 if (data.success && data.product) {
@@ -509,48 +509,35 @@
             if (product.image) {
                 let imageSrc = product.image;
                 
-                // If it's a relative path (uploads/products/...), add project root
-                if (product.image.startsWith('uploads/')) {
-                    const currentPath = window.location.pathname;
-                    let projectRoot = '/';
-                    const viewsIndex = currentPath.indexOf('/views/');
-                    if (viewsIndex > 0) {
-                        projectRoot = currentPath.substring(0, viewsIndex + 1);
+                // If already a full URL, use it
+                if (imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) {
+                    // Already a full URL, use as is
+                } else {
+                    // Extract filename from path
+                    let filename = '';
+                    if (imageSrc.includes('products/')) {
+                        filename = imageSrc.split('products/').pop();
+                    } else if (imageSrc.includes('/')) {
+                        filename = imageSrc.split('/').pop();
                     } else {
-                        const pathParts = currentPath.split('/').filter(p => p);
-                        if (pathParts.length > 0) {
-                            projectRoot = '/' + pathParts[0] + '/';
-                        }
+                        filename = imageSrc;
                     }
-                    imageSrc = projectRoot + product.image;
-                } else if (product.image.startsWith('/uploads/')) {
-                    // Path starts with /uploads/ but needs project root
-                    const currentPath = window.location.pathname;
-                    let projectRoot = '/';
-                    const viewsIndex = currentPath.indexOf('/views/');
-                    if (viewsIndex > 0) {
-                        projectRoot = currentPath.substring(0, viewsIndex + 1);
-                    } else {
-                        const pathParts = currentPath.split('/').filter(p => p);
-                        if (pathParts.length > 0) {
-                            projectRoot = '/' + pathParts[0] + '/';
-                        }
-                    }
-                    imageSrc = projectRoot + product.image.substring(1); // Remove leading /
+                    
+                    // Clean filename
+                    filename = filename.split('?')[0].split('#')[0];
+                    
+                    // Construct URL using backend API
+                    imageSrc = `${API_BASE}/storage/products/${filename}`;
                 }
                 
-                if (imageSrc.startsWith('http://') || imageSrc.startsWith('https://') || imageSrc.startsWith('/')) {
-                    const img = document.createElement('img');
-                    img.src = imageSrc;
-                    img.alt = product.name;
-                    img.onerror = function() {
-                        imageContainer.innerHTML = '🐕';
-                    };
-                    imageContainer.innerHTML = '';
-                    imageContainer.appendChild(img);
-                } else {
+                const img = document.createElement('img');
+                img.src = imageSrc;
+                img.alt = product.name;
+                img.onerror = function() {
                     imageContainer.innerHTML = '🐕';
-                }
+                };
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(img);
             } else {
                 imageContainer.innerHTML = '🐕';
             }
