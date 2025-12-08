@@ -530,59 +530,38 @@
     <script>
         checkAuth();
         
-        // Helper function to resolve image paths
+        // Helper function to resolve image paths - load from backend storage
         function resolveImagePath(imagePath) {
             if (!imagePath) return null;
             
+            // If already a full URL, return as is
             if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
                 return imagePath;
             }
             
-            if (imagePath.startsWith('/')) {
-                if (imagePath.startsWith('/uploads/')) {
-                    const currentPath = window.location.pathname;
-                    let projectRoot = '/';
-                    const viewsIndex = currentPath.indexOf('/views/');
-                    if (viewsIndex > 0) {
-                        projectRoot = currentPath.substring(0, viewsIndex + 1);
-                    } else {
-                        const pathParts = currentPath.split('/').filter(p => p);
-                        if (pathParts.length > 0) {
-                            projectRoot = '/' + pathParts[0] + '/';
-                        }
-                    }
-                    return projectRoot + imagePath.substring(1);
-                }
-                return imagePath;
+            // Get API base URL (from auth.js)
+            const apiBase = API_BASE || 'https://dogfoodshop.ccs4thyear.com/api';
+            const backendBase = apiBase.replace('/api', ''); // https://dogfoodshop.ccs4thyear.com
+            
+            // Remove leading slash if present
+            let cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+            
+            // If it's an uploads path, construct backend storage URL
+            // Laravel storage is accessible at /storage/ after running php artisan storage:link
+            if (cleanPath.startsWith('uploads/products/')) {
+                // Extract filename from path (e.g., "uploads/products/filename.png" -> "products/filename.png")
+                const filename = cleanPath.replace('uploads/', '');
+                return `${backendBase}/storage/${filename}`;
             }
             
-            if (imagePath.startsWith('uploads/')) {
-                const currentPath = window.location.pathname;
-                let projectRoot = '/';
-                const viewsIndex = currentPath.indexOf('/views/');
-                if (viewsIndex > 0) {
-                    projectRoot = currentPath.substring(0, viewsIndex + 1);
-                } else {
-                    const pathParts = currentPath.split('/').filter(p => p);
-                    if (pathParts.length > 0) {
-                        projectRoot = '/' + pathParts[0] + '/';
-                    }
-                }
-                return projectRoot + imagePath;
+            // For other upload paths
+            if (cleanPath.startsWith('uploads/')) {
+                const filename = cleanPath.replace('uploads/', '');
+                return `${backendBase}/storage/${filename}`;
             }
             
-            const currentPath = window.location.pathname;
-            let projectRoot = '/';
-            const viewsIndex = currentPath.indexOf('/views/');
-            if (viewsIndex > 0) {
-                projectRoot = currentPath.substring(0, viewsIndex + 1);
-            } else {
-                const pathParts = currentPath.split('/').filter(p => p);
-                if (pathParts.length > 0) {
-                    projectRoot = '/' + pathParts[0] + '/';
-                }
-            }
-            return projectRoot + imagePath;
+            // Fallback: try direct path
+            return `${backendBase}/storage/${cleanPath}`;
         }
         
         // Load all products for admin
@@ -986,10 +965,10 @@
             }
             
             try {
-                const response = await fetch(`${API_BASE}/products/delete_product.php`, {
+                // Backend expects 'id' not 'product_id', and can accept it as query param or in body
+                const response = await fetch(`${API_BASE}/products/delete_product.php?id=${productId}`, {
                     method: 'DELETE',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ product_id: productId })
+                    headers: getAuthHeaders()
                 });
                 
                 const result = await response.json();
@@ -998,10 +977,11 @@
                     alert('Product deleted successfully!');
                     loadAllProducts();
                 } else {
-                    alert('Error: ' + result.error);
+                    alert('Error: ' + (result.error || 'Failed to delete product'));
                 }
             } catch (error) {
-                alert('Failed to delete product');
+                console.error('Delete error:', error);
+                alert('Failed to delete product: ' + error.message);
             }
         }
     </script>
