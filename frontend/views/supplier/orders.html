@@ -879,7 +879,12 @@
 
         async function updateSelectedOrders() {
             if (selectedOrderIds.length === 0) {
-                alert('Please select at least one order to update.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Orders Selected',
+                    text: 'Please select at least one order to update.',
+                    confirmButtonColor: '#667eea'
+                });
                 return;
             }
             
@@ -916,12 +921,31 @@
             if (invalidOrders.length > 0) {
                 const errorMsg = invalidOrders.map(o => 
                     `Order ${o.orderNumber}: ${o.reason}`
-                ).join('\n');
-                alert(`Cannot update these orders:\n\n${errorMsg}\n\nOnly pending orders can be updated to "shipped" or "cancelled".`);
+                ).join('<br>');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot Update Orders',
+                    html: `Cannot update these orders:<br><br>${errorMsg}<br><br>Only pending orders can be updated to "shipped" or "cancelled".`,
+                    confirmButtonColor: '#667eea'
+                });
                 return;
             }
             
-            if (!confirm(`Update ${selectedOrderIds.length} order(s) to "${newStatus}"?`)) {
+            // Show confirmation dialog with SweetAlert
+            const statusText = newStatus === 'shipped' ? 'Shipped' : 'Cancelled';
+            const result = await Swal.fire({
+                title: 'Update Order Status?',
+                html: `Update <strong>${selectedOrderIds.length}</strong> order(s) to "<strong>${statusText}</strong>"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#667eea',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            });
+            
+            if (!result.isConfirmed) {
                 return;
             }
             
@@ -929,6 +953,18 @@
             const originalText = updateBtn.innerHTML;
             updateBtn.disabled = true;
             updateBtn.innerHTML = '<span>⏳</span>Updating...';
+            
+            // Show loading alert
+            Swal.fire({
+                title: 'Updating...',
+                html: `Updating ${selectedOrderIds.length} order(s) to "${statusText}"`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             try {
                 let successCount = 0;
@@ -976,28 +1012,59 @@
                     }
                 }
                 
+                // Close loading alert first
+                Swal.close();
+                
                 if (successCount > 0) {
                     if (failCount > 0) {
-                        let message = `Successfully updated ${successCount} order(s), but ${failCount} order(s) failed.\n\nErrors:\n${errorMessages.slice(0, 5).join('\n')}`;
+                        // Partial success - some succeeded, some failed
+                        let errorList = errorMessages.slice(0, 5).map(msg => `• ${msg}`).join('<br>');
                         if (errorMessages.length > 5) {
-                            message += `\n... and ${errorMessages.length - 5} more error(s)`;
+                            errorList += `<br>... and ${errorMessages.length - 5} more error(s)`;
                         }
-                        alert(message);
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Partially Updated',
+                            html: `Successfully updated <strong>${successCount}</strong> order(s), but <strong>${failCount}</strong> order(s) failed.<br><br><strong>Errors:</strong><br>${errorList}`,
+                            confirmButtonColor: '#667eea',
+                            width: '600px'
+                        });
                     } else {
-                        alert(`Successfully updated ${successCount} order(s)!`);
+                        // All succeeded
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: `Successfully updated ${successCount} order(s)!`,
+                            confirmButtonColor: '#667eea',
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
                     }
                     selectedOrderIds = [];
                     loadSupplierOrders();
                 } else {
-                    let message = `Failed to update all orders.\n\nErrors:\n${errorMessages.slice(0, 5).join('\n')}`;
+                    // All failed
+                    let errorList = errorMessages.slice(0, 5).map(msg => `• ${msg}`).join('<br>');
                     if (errorMessages.length > 5) {
-                        message += `\n... and ${errorMessages.length - 5} more error(s)`;
+                        errorList += `<br>... and ${errorMessages.length - 5} more error(s)`;
                     }
-                    alert(message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        html: `Failed to update all orders.<br><br><strong>Errors:</strong><br>${errorList}`,
+                        confirmButtonColor: '#667eea',
+                        width: '600px'
+                    });
                 }
             } catch (error) {
                 console.error('Error updating orders:', error);
-                alert('Error updating orders. Please try again.');
+                Swal.close(); // Close loading alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating orders. Please try again.',
+                    confirmButtonColor: '#667eea'
+                });
             } finally {
                 updateBtn.disabled = false;
                 updateBtn.innerHTML = originalText;
