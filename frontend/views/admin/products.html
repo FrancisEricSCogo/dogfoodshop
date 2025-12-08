@@ -684,7 +684,8 @@
             
             let imagePath = '';
             
-            if (imageFile && imageFile.size > 0) {
+            // Only upload if file is selected and has content
+            if (imageFile && imageFile instanceof File && imageFile.size > 0) {
                 try {
                     const uploadFormData = new FormData();
                     uploadFormData.append('image', imageFile);
@@ -701,23 +702,27 @@
                     const uploadResult = await uploadResponse.json();
                     
                     if (uploadResult.success) {
-                        imagePath = uploadResult.image_path || uploadResult.image_url;
+                        imagePath = uploadResult.image_path || uploadResult.image_url || '';
                     } else {
                         alert('Error uploading image: ' + uploadResult.error);
                         return;
                     }
                 } catch (error) {
-                    alert('Failed to upload image');
+                    console.error('Upload error:', error);
+                    alert('Failed to upload image: ' + error.message);
                     return;
                 }
             }
             
+            // Ensure image is always a string, never null/undefined/array
+            const finalImagePath = (typeof imagePath === 'string') ? imagePath : '';
+            
             const data = {
-                name: formData.get('name'),
-                description: formData.get('description'),
-                price: parseFloat(formData.get('price')),
-                stock: parseInt(formData.get('stock')),
-                image: imagePath
+                name: String(formData.get('name') || '').trim(),
+                description: String(formData.get('description') || '').trim(),
+                price: parseFloat(formData.get('price')) || 0,
+                stock: parseInt(formData.get('stock')) || 0,
+                image: finalImagePath
             };
             
             try {
