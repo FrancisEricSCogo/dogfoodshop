@@ -755,7 +755,12 @@
         }
       } catch (error) {
         console.error('Error loading profile:', error);
-        showMessage('Error loading profile. Please try again.', 'error');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error loading profile. Please try again.',
+          confirmButtonColor: '#667eea'
+        });
       }
     }
 
@@ -767,7 +772,12 @@
       const file = fileInput.files[0];
       
       if (!file) {
-        showMessage('Please select an image file.', 'error');
+        await Swal.fire({
+          icon: 'warning',
+          title: 'No File Selected',
+          text: 'Please select an image file to upload.',
+          confirmButtonColor: '#667eea'
+        });
         return;
       }
 
@@ -778,6 +788,18 @@
       const originalUploadText = uploadBtn.innerHTML;
       uploadBtn.disabled = true;
       uploadBtn.innerHTML = '<span class="loading-spinner"></span>Uploading...';
+
+      // Show loading alert
+      Swal.fire({
+        title: 'Uploading Photo...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
       try {
         const token = localStorage.getItem('token');
@@ -791,26 +813,44 @@
 
         const result = await response.json();
 
+        Swal.close(); // Close loading alert
+
         if (result.success) {
           uploadBtn.innerHTML = '<span class="loading-spinner"></span>Success!';
-          showMessage('Profile photo updated successfully!', 'success');
+          await Swal.fire({
+            icon: 'success',
+            title: 'Photo Updated!',
+            text: 'Your profile photo has been updated successfully!',
+            confirmButtonColor: '#667eea',
+            timer: 2000,
+            showConfirmButton: true
+          });
           // Reload profile to show new image
-          setTimeout(() => {
-            loadProfile();
-            fileInput.value = '';
-            uploadBtn.disabled = false;
-            uploadBtn.innerHTML = originalUploadText;
-          }, 1500);
+          loadProfile();
+          fileInput.value = '';
+          uploadBtn.disabled = false;
+          uploadBtn.innerHTML = originalUploadText;
         } else {
           uploadBtn.disabled = false;
           uploadBtn.innerHTML = originalUploadText;
-          showMessage(result.error || 'Failed to upload photo.', 'error');
+          await Swal.fire({
+            icon: 'error',
+            title: 'Upload Failed',
+            text: result.error || 'Failed to upload photo. Please try again.',
+            confirmButtonColor: '#667eea'
+          });
         }
       } catch (error) {
         console.error('Error uploading photo:', error);
+        Swal.close(); // Close loading alert
         uploadBtn.disabled = false;
         uploadBtn.innerHTML = originalUploadText;
-        showMessage('Error uploading photo. Please try again.', 'error');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error uploading photo. Please try again.',
+          confirmButtonColor: '#667eea'
+        });
       }
     });
 
@@ -832,6 +872,18 @@
         postal_code: document.getElementById('postal_code').value.trim()
       };
 
+      // Show loading alert
+      Swal.fire({
+        title: 'Updating Profile...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_BASE}/users/profile.php`, {
@@ -845,9 +897,18 @@
 
         const result = await response.json();
 
+        Swal.close(); // Close loading alert
+
         if (result.success) {
           saveBtn.innerHTML = '<span class="loading-spinner"></span>Success!';
-          showMessage('Profile updated successfully!', 'success');
+          await Swal.fire({
+            icon: 'success',
+            title: 'Profile Updated!',
+            text: 'Your profile has been updated successfully!',
+            confirmButtonColor: '#667eea',
+            timer: 2000,
+            showConfirmButton: true
+          });
           // Update localStorage with fresh user data including address
           if (result.user) {
             localStorage.setItem('user', JSON.stringify(result.user));
@@ -855,20 +916,29 @@
             // Update currentUser variable
             currentUser = result.user;
           }
-          setTimeout(() => {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = originalSaveText;
-          }, 1500);
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalSaveText;
         } else {
           saveBtn.disabled = false;
           saveBtn.innerHTML = originalSaveText;
-          showMessage(result.error || 'Failed to update profile.', 'error');
+          await Swal.fire({
+            icon: 'error',
+            title: 'Update Failed',
+            text: result.error || 'Failed to update profile. Please try again.',
+            confirmButtonColor: '#667eea'
+          });
         }
       } catch (error) {
         console.error('Error updating profile:', error);
+        Swal.close(); // Close loading alert
         saveBtn.disabled = false;
         saveBtn.innerHTML = originalSaveText;
-        showMessage('Error updating profile. Please try again.', 'error');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error updating profile. Please try again.',
+          confirmButtonColor: '#667eea'
+        });
       }
     });
 
