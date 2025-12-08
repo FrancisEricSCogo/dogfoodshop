@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Dog Food Shop</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/images/logo.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #334155;
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(79,70,229,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .checkout-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 80px;
+            z-index: 10;
+            backdrop-filter: blur(20px);
+        }
+
+        .checkout-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+        }
+
+        .checkout-header-center {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .place-order-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+            font-size: 1rem;
+        }
+
+        .place-order-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .place-order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .checkout-section {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkout-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        .checkout-section:hover {
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+            letter-spacing: -0.02em;
+        }
+
+        .section-icon {
+            font-size: 1.75rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+            border-color: #cbd5e1;
+            transform: translateX(4px);
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+
+        .order-item-price {
+            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.15rem;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 16px;
+            margin-top: 1.5rem;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.2);
+        }
+
+        .order-total-label {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .order-total-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .payment-option:hover::before {
+            left: 100%;
+        }
+
+        .payment-option:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.1);
+        }
+
+        .payment-option input[type="radio"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #4f46e5;
+        }
+
+        .payment-option.selected {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border-color: #4f46e5;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.15);
+        }
+
+        .payment-option-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            flex: 1;
+            font-size: 1.05rem;
+        }
+
+        .address-display {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            color: #1e293b;
+            min-height: 70px;
+            line-height: 1.8;
+            transition: all 0.3s ease;
+        }
+
+        .address-display:hover {
+            border-color: #cbd5e1;
+            background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+        }
+
+        .success-container {
+            text-align: center;
+            padding: 4rem 2rem;
+            display: none;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .success-container.show {
+            display: block;
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            border: 5px solid #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 3.5rem;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-message {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 3rem;
+            letter-spacing: -0.03em;
+        }
+
+        .order-details {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 650px;
+            margin: 0 auto;
+            text-align: left;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-details::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        .order-detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .order-detail-item:hover {
+            background: rgba(248, 250, 252, 0.5);
+            margin: 0 -1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: 8px;
+        }
+
+        .order-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-detail-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-detail-value {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+
+        .order-detail-value.order-id {
+            color: #f97316;
+            font-size: 1.2rem;
+        }
+
+        .order-detail-value.status {
+            color: #f97316;
+            padding: 0.5rem 1rem;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 8px;
+        }
+
+        .checkout-form {
+            display: block;
+        }
+
+        .checkout-form.hide {
+            display: none;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .checkout-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .checkout-header-center {
+                font-size: 1rem;
+            }
+
+            .main-content {
+                padding: 2rem 1rem;
+            }
+
+            .checkout-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Dog Food Shop</div>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="orders.html">My Orders</a>
+                <a href="cart.html" style="position: relative;">
+                    🛒 Cart
+                    <span id="cart-count" class="cart-count" style="display: none; position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.75rem; align-items: center; justify-content: center; font-weight: 700; line-height: 20px; text-align: center;">0</span>
+                </a>
+                <a href="profile.html">Profile</a>
+                <span id="userName"></span>
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="checkout-header">
+        <div class="checkout-header-left">
+            <button class="back-btn" onclick="window.location.href='cart.html'">
+                <span>←</span> Back to Cart
+            </button>
+        </div>
+        <div class="checkout-header-center">
+            <span>📋</span>
+            <span>Checkout</span>
+        </div>
+        <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
+            <span>✓</span>
+            Place Order
+        </button>
+    </div>
+
+    <div class="main-content">
+        <!-- Checkout Form -->
+        <div id="checkoutForm" class="checkout-form">
+            <!-- Order Summary -->
+            <div class="checkout-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📋</span>
+                    <span>Order Summary</span>
+                </h2>
+                <div id="orderItems"></div>
+                <div class="order-total">
+                    <span class="order-total-label">Total:</span>
+                    <span class="order-total-amount" id="orderTotal">₱0.00</span>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="checkout-section">
+                <h2 class="section-title">
+                    <span class="section-icon">💳</span>
+                    <span>Payment Method</span>
+                </h2>
+                <div class="payment-option" onclick="selectPayment('cod')">
+                    <input type="radio" name="payment" id="payment-cod" value="cod" checked>
+                    <label for="payment-cod" class="payment-option-label">
+                        <span>💰</span>
+                        <span>Cash on Delivery (COD)</span>
+                    </label>
+                </div>
+                <div class="payment-option" onclick="selectPayment('gcash')">
+                    <input type="radio" name="payment" id="payment-gcash" value="gcash">
+                    <label for="payment-gcash" class="payment-option-label">
+                        <span>📱</span>
+                        <span>GCash</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Delivery Address -->
+            <div class="checkout-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📍</span>
+                    <span>Delivery Address</span>
+                </h2>
+                <div class="address-display" id="deliveryAddress">
+                    Loading address...
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successContainer" class="success-container">
+            <div class="success-icon">✓</div>
+            <h1 class="success-message">Order Placed Successfully!</h1>
+            <div class="order-details" id="orderDetails"></div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/cart.js"></script>
+    <script>
+        checkAuth();
+        if (typeof updateCartCount === 'function') {
+            updateCartCount();
+        }
+
+        let checkoutItems = [];
+        let selectedPayment = 'cod';
+
+        // Load checkout items from URL or localStorage
+        function loadCheckoutItems() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemIds = urlParams.get('items');
+            
+            if (itemIds) {
+                // Items passed via URL (from cart page)
+                const ids = itemIds.split(',').map(id => parseInt(id));
+                const cart = JSON.parse(localStorage.getItem('dogfoodshop_cart') || '[]');
+                checkoutItems = cart.filter(item => ids.includes(item.product_id));
+            } else {
+                // Fallback: get all cart items
+                const cart = JSON.parse(localStorage.getItem('dogfoodshop_cart') || '[]');
+                checkoutItems = cart;
+            }
+
+            if (checkoutItems.length === 0) {
+                alert('No items to checkout. Redirecting to cart...');
+                window.location.href = 'cart.html';
+                return;
+            }
+
+            displayOrderSummary();
+            loadDeliveryAddress();
+        }
+
+        async function displayOrderSummary() {
+            const orderItemsDiv = document.getElementById('orderItems');
+            let total = 0;
+
+            // Fetch product details if needed
+            const itemsWithDetails = await Promise.all(checkoutItems.map(async (item) => {
+                if (item.name && item.price) {
+                    return item; // Already has details
+                }
+                // Fetch product details
+                try {
+                    const response = await fetch(`https://dogfoodshop.ccs4thyear.com/api/products/get_product.php?id=${item.product_id}`, {
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+                    if (data.success && data.product) {
+                        return {
+                            ...item,
+                            name: data.product.name,
+                            price: data.product.price
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error fetching product:', error);
+                }
+                return item;
+            }));
+
+            orderItemsDiv.innerHTML = itemsWithDetails.map(item => {
+                const price = parseFloat(item.price || 0);
+                const itemTotal = price * item.quantity;
+                total += itemTotal;
+                return `
+                    <div class="order-item">
+                        <span class="order-item-name">${item.name || 'Product'} x${item.quantity}</span>
+                        <span class="order-item-price">₱${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('orderTotal').textContent = '₱' + total.toFixed(2);
+        }
+
+        function loadDeliveryAddress() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            let address = '';
+            
+            if (user.address) {
+                address = user.address;
+                if (user.city) {
+                    address += ', ' + user.city;
+                }
+                if (user.postal_code) {
+                    address += ', ' + user.postal_code;
+                }
+            } else {
+                address = 'No address set. Please update your profile.';
+            }
+
+            document.getElementById('deliveryAddress').textContent = address;
+        }
+
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio) radio.checked = false;
+            });
+            const selectedOption = document.querySelector(`#payment-${method}`).closest('.payment-option');
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+            document.getElementById(`payment-${method}`).checked = true;
+        }
+
+        function placeOrder() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            // Validate address
+            if (!user.address || !user.city || !user.postal_code) {
+                alert('Please complete your address in your profile before placing an order.');
+                window.location.href = 'profile.html';
+                return;
+            }
+
+            // Build full address
+            let fullAddress = user.address;
+            if (user.city) fullAddress += ', ' + user.city;
+            if (user.postal_code) fullAddress += ', ' + user.postal_code;
+
+            // Calculate total from displayed items
+            const totalElement = document.getElementById('orderTotal');
+            const totalText = totalElement ? totalElement.textContent.replace('₱', '').replace(',', '') : '0';
+            const total = parseFloat(totalText) || checkoutItems.reduce((sum, item) => sum + (parseFloat(item.price || 0) * item.quantity), 0);
+
+            // Show confirmation dialog
+            const confirmHtml = `
+                <div id="confirmModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 2rem; animation: fadeIn 0.3s ease-out;">
+                    <div style="background: white; border-radius: 24px; max-width: 550px; width: 100%; box-shadow: 0 24px 80px rgba(0,0,0,0.25); overflow: hidden; position: relative; animation: slideUp 0.4s ease-out;">
+                        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; position: relative;">
+                            <span style="font-size: 1.75rem;">📋</span>
+                            <h2 style="color: white; font-size: 1.75rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">Confirm Order</h2>
+                        </div>
+                        <div style="padding: 2.5rem;">
+                            <div style="margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-radius: 16px; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; color: #64748b; font-size: 0.95rem;">
+                                    <span style="font-size: 1.25rem;">💳</span>
+                                    <span style="font-weight: 600;">Payment Method:</span>
+                                </div>
+                                <div style="color: #1e293b; font-weight: 700; font-size: 1.1rem; margin-left: 2rem; padding: 0.5rem 1rem; background: rgba(79, 70, 229, 0.1); border-radius: 8px; display: inline-block;">${selectedPayment.toUpperCase()}</div>
+                            </div>
+                            <div style="margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-radius: 16px; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; color: #64748b; font-size: 0.95rem;">
+                                    <span style="font-size: 1.25rem;">💰</span>
+                                    <span style="font-weight: 600;">Total Amount:</span>
+                                </div>
+                                <div style="color: #10b981; font-weight: 800; font-size: 1.75rem; margin-left: 2rem;">₱${total.toFixed(2)}</div>
+                            </div>
+                            <div style="margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-radius: 16px; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; color: #64748b; font-size: 0.95rem;">
+                                    <span style="font-size: 1.25rem;">📍</span>
+                                    <span style="font-weight: 600;">Delivery Address:</span>
+                                </div>
+                                <div style="color: #1e293b; font-weight: 500; margin-left: 2rem; line-height: 1.6;">${fullAddress}</div>
+                            </div>
+                            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                                <button onclick="confirmOrder()" style="flex: 1; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 1.125rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(16, 185, 129, 0.3)'">
+                                    <span>✓</span>
+                                    <span>Confirm & Place Order</span>
+                                </button>
+                                <button onclick="closeConfirmModal()" style="flex: 1; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 1.125rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(239, 68, 68, 0.3)'">
+                                    <span>✕</span>
+                                    <span>Cancel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                        from { transform: translateY(30px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                </style>
+            `;
+            document.body.insertAdjacentHTML('beforeend', confirmHtml);
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            if (modal) modal.remove();
+        }
+
+        async function confirmOrder() {
+            closeConfirmModal();
+            
+            const placeOrderBtn = document.getElementById('placeOrderBtn');
+            placeOrderBtn.disabled = true;
+
+            try {
+                const token = localStorage.getItem('token');
+                
+                const orderItems = checkoutItems.map(item => ({
+                    product_id: item.product_id,
+                    quantity: item.quantity
+                }));
+
+                const response = await fetch('https://dogfoodshop.ccs4thyear.com/api/orders/create_order_bulk.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        items: orderItems
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove checked items from cart
+                    const cart = JSON.parse(localStorage.getItem('dogfoodshop_cart') || '[]');
+                    const itemIds = checkoutItems.map(item => item.product_id);
+                    const remainingItems = cart.filter(item => !itemIds.includes(item.product_id));
+                    localStorage.setItem('dogfoodshop_cart', JSON.stringify(remainingItems));
+
+                    if (typeof updateCartCount === 'function') {
+                        updateCartCount();
+                    }
+
+                    // Show success message immediately
+                    showSuccessMessage(result.order);
+                } else {
+                    placeOrderBtn.disabled = false;
+                    alert(result.error || 'Failed to place order. Please try again.');
+                }
+            } catch (error) {
+                console.error('Order error:', error);
+                placeOrderBtn.disabled = false;
+                alert('Failed to process order. Please try again.');
+            }
+        }
+
+        function showSuccessMessage(order) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            let fullAddress = user.address || '';
+            if (user.city) fullAddress += ', ' + user.city;
+            if (user.postal_code) fullAddress += ', ' + user.postal_code;
+
+            document.getElementById('checkoutForm').classList.add('hide');
+            document.getElementById('successContainer').classList.add('show');
+
+            document.getElementById('orderDetails').innerHTML = `
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Order ID:</span>
+                    <span class="order-detail-value order-id">#${order.order_number || order.id}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Payment Method:</span>
+                    <span class="order-detail-value">${selectedPayment.toUpperCase()}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Total Amount:</span>
+                    <span class="order-detail-value">₱${parseFloat(order.total_amount || 0).toFixed(2)}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Delivery Address:</span>
+                    <span class="order-detail-value">${fullAddress}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Status:</span>
+                    <span class="order-detail-value status">Pending</span>
+                </div>
+            `;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        loadCheckoutItems();
+        
+        // Initialize first payment option as selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstPaymentOption = document.querySelector('.payment-option');
+            if (firstPaymentOption) {
+                firstPaymentOption.classList.add('selected');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Food Shop - Home</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/images/logo.svg">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(79,70,229,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 20px 100px;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            pointer-events: none;
+        }
+
+        .hero-section .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-section p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.95;
+            line-height: 1.8;
+        }
+
+        .products-section {
+            padding: 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 12px 48px rgba(79, 70, 229, 0.15);
+            transform: translateY(-8px);
+        }
+
+        .product-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-info h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        .product-info .description {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .product-stock {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .product-stock.in-stock {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .product-stock.low-stock {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .product-stock.out-of-stock {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .product-supplier {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 1rem 0;
+            letter-spacing: -0.02em;
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: auto;
+        }
+
+        .product-card .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .product-card .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .product-card .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .product-card .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+        }
+
+        .product-card .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .product-card .btn-primary:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(79, 70, 229, 0.1);
+            border-radius: 50%;
+            border-top-color: #4f46e5;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 100px 20px 60px;
+            }
+
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-section p {
+                font-size: 1.1rem;
+            }
+
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+
+            .products-section {
+                padding: 2rem 1rem;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">Dog Food Shop</a>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="register.html">Register</a>
+                <a href="login.html">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container">
+            <h1>🐕 Premium Dog Food Shop</h1>
+            <p>Discover the finest selection of nutritious dog food for your beloved pets. Quality ingredients, trusted by pet owners everywhere. Your dog's health is our priority.</p>
+        </div>
+    </div>
+
+    <div class="products-section">
+        <div class="section-title">
+            <h2>Available Products</h2>
+            <p>Browse our wide selection of premium dog food</p>
+        </div>
+        <div id="products-grid" class="products-grid">
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading products...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use absolute API base when serving via live server (5500) so requests hit PHP backend
+        const API_BASE = 'https://dogfoodshop.ccs4thyear.com/api';
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products/get_products.php`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('products-grid');
+                
+                if (data.success) {
+                    if (data.products.length === 0) {
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🐕</div>
+                                <h3>No Products Available</h3>
+                                <p>Check back soon for new products!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    grid.innerHTML = data.products.map((product, index) => {
+                        const stockClass = product.stock === 0 ? 'out-of-stock' : 
+                                          product.stock < 10 ? 'low-stock' : 'in-stock';
+                        const stockText = product.stock === 0 ? 'Out of Stock' : 
+                                         product.stock < 10 ? `Low Stock (${product.stock})` : 
+                                         `In Stock (${product.stock})`;
+                        
+                        // Resolve image path
+                        let imageHtml = '🐕';
+                        if (product.image) {
+                            let imageSrc = product.image;
+                            
+                            // If it's a relative path (uploads/products/...), add project root
+                            if (product.image.startsWith('uploads/')) {
+                                const currentPath = window.location.pathname;
+                                let projectRoot = '/';
+                                const viewsIndex = currentPath.indexOf('/views/');
+                                if (viewsIndex > 0) {
+                                    projectRoot = currentPath.substring(0, viewsIndex + 1);
+                                } else {
+                                    const pathParts = currentPath.split('/').filter(p => p);
+                                    if (pathParts.length > 0) {
+                                        projectRoot = '/' + pathParts[0] + '/';
+                                    }
+                                }
+                                imageSrc = projectRoot + product.image;
+                            } else if (product.image.startsWith('/uploads/')) {
+                                // Path starts with /uploads/ but needs project root
+                                const currentPath = window.location.pathname;
+                                let projectRoot = '/';
+                                const viewsIndex = currentPath.indexOf('/views/');
+                                if (viewsIndex > 0) {
+                                    projectRoot = currentPath.substring(0, viewsIndex + 1);
+                                } else {
+                                    const pathParts = currentPath.split('/').filter(p => p);
+                                    if (pathParts.length > 0) {
+                                        projectRoot = '/' + pathParts[0] + '/';
+                                    }
+                                }
+                                imageSrc = projectRoot + product.image.substring(1); // Remove leading /
+                            }
+                            
+                            // Only create img tag if it's a valid URL or path
+                            if (imageSrc.startsWith('http://') || imageSrc.startsWith('https://') || imageSrc.startsWith('/')) {
+                                imageHtml = `<img src="${imageSrc}" alt="${product.name}" onerror="this.parentElement.innerHTML='🐕'">`;
+                            }
+                        }
+                        
+                        return `
+                            <div class="product-card" style="animation-delay: ${index * 0.1}s; cursor: pointer;" onclick="window.location.href='product.html?id=${product.id}'">
+                                <div class="product-image">
+                                    ${imageHtml}
+                                </div>
+                                <div class="product-info">
+                                    <h3>${product.name}</h3>
+                                    <p class="description">${product.description || 'Premium quality dog food for your pet.'}</p>
+                                    <div class="product-meta">
+                                        <span class="product-stock ${stockClass}">${stockText}</span>
+                                        <span class="product-supplier">by ${product.supplier_name || 'Supplier'}</span>
+                                    </div>
+                                    <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
+                                    <div class="product-actions">
+                                        <button onclick="event.stopPropagation(); handleBuy(${product.id})" class="btn btn-primary" ${product.stock === 0 ? 'disabled' : ''}>
+                                            ${product.stock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⚠️</div>
+                            <h3>Error Loading Products</h3>
+                            <p>Please try refreshing the page.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('products-grid').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Error Loading Products</h3>
+                        <p>Please check your connection and try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function handleBuy(productId) {
+            event.stopPropagation();
+            Swal.fire({
+                title: 'Please login first',
+                text: 'You need to login to purchase products.',
+                icon: 'info',
+                confirmButtonColor: '#4f46e5',
+                confirmButtonText: 'Go to Login'
+            }).then(() => {
+                window.location.href = 'login.html';
+            });
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>
+

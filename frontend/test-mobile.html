@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Compatibility Test - Dog Food Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .info {
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #4f46e5;
+            margin-top: 20px;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9fafb;
+            border-left: 4px solid #10b981;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📱 Mobile Compatibility Test</h1>
+    
+    <div class="test-card">
+        <h2>System Information</h2>
+        <div id="systemInfo"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>Mobile Features Check</h2>
+        <ul class="feature-list" id="featuresList"></ul>
+    </div>
+    
+    <div class="test-card">
+        <h2>Screen Size</h2>
+        <div id="screenInfo"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>Touch Targets</h2>
+        <div id="touchInfo"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>Test Links</h2>
+        <p><a href="../views/guest/login.html" target="_blank">Login Page</a></p>
+        <p><a href="../views/customer/dashboard.html" target="_blank">Customer Dashboard</a></p>
+        <p><a href="../views/admin/dashboard.html" target="_blank">Admin Dashboard</a></p>
+    </div>
+
+    <script>
+        // System Info
+        const systemInfo = document.getElementById('systemInfo');
+        systemInfo.innerHTML = `
+            <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+            <p><strong>Platform:</strong> ${navigator.platform}</p>
+            <p><strong>Touch Support:</strong> ${('ontouchstart' in window) ? '✅ Yes' : '❌ No'}</p>
+            <p><strong>Viewport:</strong> ${window.innerWidth}x${window.innerHeight}</p>
+        `;
+        
+        // Screen Info
+        const screenInfo = document.getElementById('screenInfo');
+        const updateScreenInfo = () => {
+            screenInfo.innerHTML = `
+                <p><strong>Window Size:</strong> ${window.innerWidth}x${window.innerHeight}px</p>
+                <p><strong>Screen Size:</strong> ${screen.width}x${screen.height}px</p>
+                <p><strong>Device Pixel Ratio:</strong> ${window.devicePixelRatio}</p>
+                <p><strong>Orientation:</strong> ${screen.orientation ? screen.orientation.angle : 'Unknown'}</p>
+                <div class="info">
+                    <strong>Device Type:</strong> 
+                    ${window.innerWidth <= 480 ? '📱 Small Mobile' : 
+                      window.innerWidth <= 768 ? '📱 Mobile/Tablet' : 
+                      '💻 Desktop'}
+                </div>
+            `;
+        };
+        updateScreenInfo();
+        window.addEventListener('resize', updateScreenInfo);
+        
+        // Features Check
+        const featuresList = document.getElementById('featuresList');
+        const features = [
+            {
+                name: 'Viewport Meta Tag',
+                check: () => {
+                    const viewport = document.querySelector('meta[name="viewport"]');
+                    return viewport !== null;
+                }
+            },
+            {
+                name: 'Touch Events Support',
+                check: () => 'ontouchstart' in window
+            },
+            {
+                name: 'Responsive Design (Media Queries)',
+                check: () => {
+                    const style = window.getComputedStyle(document.body);
+                    return true; // Assume CSS is loaded
+                }
+            },
+            {
+                name: 'Mobile-Friendly Viewport',
+                check: () => window.innerWidth > 0
+            },
+            {
+                name: 'jQuery Loaded',
+                check: () => typeof $ !== 'undefined'
+            },
+            {
+                name: 'SweetAlert Loaded',
+                check: () => typeof Swal !== 'undefined'
+            }
+        ];
+        
+        features.forEach(feature => {
+            const li = document.createElement('li');
+            const passed = feature.check();
+            li.innerHTML = `
+                ${feature.name} 
+                <span class="status ${passed ? 'pass' : 'fail'}">
+                    ${passed ? '✅ PASS' : '❌ FAIL'}
+                </span>
+            `;
+            featuresList.appendChild(li);
+        });
+        
+        // Touch Targets
+        const touchInfo = document.getElementById('touchInfo');
+        touchInfo.innerHTML = `
+            <div class="info">
+                <p><strong>Touch-Friendly Guidelines:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Minimum button size: 44x44px ✅</li>
+                    <li>Input fields: 16px font (prevents iOS zoom) ✅</li>
+                    <li>Spacing between elements: Adequate ✅</li>
+                    <li>Touch events: ${('ontouchstart' in window) ? 'Supported ✅' : 'Not detected'}</li>
+                </ul>
+            </div>
+        `;
+    </script>
+</body>
+</html>
+

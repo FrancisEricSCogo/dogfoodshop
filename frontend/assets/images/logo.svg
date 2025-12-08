@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#logoGradient)" opacity="0.1"/>
+  
+  <!-- Dog bowl -->
+  <ellipse cx="100" cy="140" rx="60" ry="20" fill="#fbbf24" stroke="#f59e0b" stroke-width="2"/>
+  <ellipse cx="100" cy="140" rx="55" ry="15" fill="#fde68a"/>
+  
+  <!-- Dog food pieces -->
+  <circle cx="85" cy="135" r="4" fill="#8b5cf6"/>
+  <circle cx="100" cy="132" r="4" fill="#8b5cf6"/>
+  <circle cx="115" cy="135" r="4" fill="#8b5cf6"/>
+  <circle cx="90" cy="145" r="3" fill="#8b5cf6"/>
+  <circle cx="110" cy="145" r="3" fill="#8b5cf6"/>
+  
+  <!-- Dog head silhouette -->
+  <ellipse cx="100" cy="80" rx="45" ry="50" fill="url(#logoGradient)"/>
+  <ellipse cx="85" cy="75" rx="8" ry="10" fill="white" opacity="0.9"/>
+  <ellipse cx="115" cy="75" rx="8" ry="10" fill="white" opacity="0.9"/>
+  <ellipse cx="85" cy="75" rx="4" ry="5" fill="#1e293b"/>
+  <ellipse cx="115" cy="75" rx="4" ry="5" fill="#1e293b"/>
+  <ellipse cx="100" cy="90" rx="12" ry="8" fill="#fbbf24"/>
+  <path d="M 100 90 Q 95 95 90 92" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 100 90 Q 105 95 110 92" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Decorative stars -->
+  <path d="M 30 50 L 32 55 L 37 55 L 33 58 L 35 63 L 30 60 L 25 63 L 27 58 L 23 55 L 28 55 Z" fill="#fbbf24" opacity="0.6"/>
+  <path d="M 170 50 L 172 55 L 177 55 L 173 58 L 175 63 L 170 60 L 165 63 L 167 58 L 163 55 L 168 55 Z" fill="#fbbf24" opacity="0.6"/>
+</svg>
+
