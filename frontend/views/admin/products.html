@@ -541,34 +541,31 @@
             
             // Get API base URL (from auth.js)
             const apiBase = API_BASE || 'https://dogfoodshop.ccs4thyear.com/api';
-            const backendBase = apiBase.replace('/api', ''); // https://dogfoodshop.ccs4thyear.com
-            
-            // Remove leading slash if present
-            let cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
             
             // Extract filename from various path formats
             let filename = '';
             
-            // Handle different path formats:
-            // - "uploads/products/filename.png"
-            // - "/uploads/products/filename.png"
-            // - "products/filename.png"
-            // - "filename.png"
+            // Handle different path formats from database:
+            // - "uploads/products/product_4_1764871064_6931cb9810b48.jpg"
+            // - "/uploads/products/product_4_1764871064_6931cb9810b48.jpg"
+            // - "products/product_4_1764871064_6931cb9810b48.jpg"
+            // - "product_4_1764871064_6931cb9810b48.jpg"
             
-            if (cleanPath.includes('products/')) {
+            if (imagePath.includes('products/')) {
                 // Extract filename after "products/"
-                filename = cleanPath.split('products/').pop();
-            } else if (cleanPath.includes('/')) {
+                filename = imagePath.split('products/').pop();
+            } else if (imagePath.includes('/')) {
                 // Extract last part (filename)
-                filename = cleanPath.split('/').pop();
+                filename = imagePath.split('/').pop();
             } else {
                 // Already just filename
-                filename = cleanPath;
+                filename = imagePath;
             }
             
-            // The route is now in api.php, so it's accessible at:
-            // https://dogfoodshop.ccs4thyear.com/api/storage/products/filename
-            // This matches the route we added to api.php
+            // Clean filename (remove any query params or fragments)
+            filename = filename.split('?')[0].split('#')[0];
+            
+            // Construct URL using the route in api.php: /storage/products/{filename}
             const imageUrl = `${apiBase}/storage/products/${filename}`;
             
             return imageUrl;
@@ -609,7 +606,18 @@
                         if (product.image) {
                             const imageSrc = resolveImagePath(product.image);
                             if (imageSrc) {
-                                imageHtml = `<img src="${imageSrc}" alt="${product.name}" onerror="this.parentElement.innerHTML='🐕'">`;
+                                // Add debug logging and better error handling
+                                imageHtml = `<img src="${imageSrc}" alt="${product.name}" 
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    onerror="
+                                        console.error('Failed to load image for product ${product.id}:', '${imageSrc}');
+                                        console.log('Original image path:', '${product.image}');
+                                        this.parentElement.innerHTML='🐕';
+                                    "
+                                    onload="console.log('Image loaded successfully for product ${product.id}:', '${imageSrc}')"
+                                >`;
+                            } else {
+                                console.warn('Could not resolve image path for product:', product.id, product.image);
                             }
                         }
                         
