@@ -718,12 +718,22 @@
                     if (uploadResult.success) {
                         imagePath = uploadResult.image_path || uploadResult.image_url || '';
                     } else {
-                        alert('Error uploading image: ' + uploadResult.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Upload Failed',
+                            text: uploadResult.error || 'Failed to upload image',
+                            confirmButtonColor: '#667eea'
+                        });
                         return;
                     }
                 } catch (error) {
                     console.error('Upload error:', error);
-                    alert('Failed to upload image: ' + error.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Error',
+                        text: 'Failed to upload image: ' + error.message,
+                        confirmButtonColor: '#667eea'
+                    });
                     return;
                 }
             }
@@ -749,14 +759,31 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Product added successfully!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Product added successfully!',
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
                     hideAddProductForm();
                     loadAllProducts();
                 } else {
-                    alert('Error: ' + result.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to add product',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
-                alert('Failed to add product');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to add product: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         });
 
@@ -792,11 +819,21 @@
                     document.getElementById('add-product-form').style.display = 'none';
                     document.getElementById('edit-product-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } else {
-                    alert('Error loading product details');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load product details',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
                 console.error('Error loading product:', error);
-                alert('Failed to load product details');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load product details: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
 
@@ -847,11 +884,21 @@
                     if (uploadResult.success) {
                         imagePath = uploadResult.image_path || uploadResult.image_url;
                     } else {
-                        alert('Error uploading image: ' + uploadResult.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Upload Failed',
+                            text: uploadResult.error || 'Failed to upload image',
+                            confirmButtonColor: '#667eea'
+                        });
                         return;
                     }
                 } catch (error) {
-                    alert('Failed to upload image');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Error',
+                        text: 'Failed to upload image',
+                        confirmButtonColor: '#667eea'
+                    });
                     return;
                 }
             }
@@ -878,14 +925,31 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Product updated successfully!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Product updated successfully!',
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
                     hideEditProductForm();
                     loadAllProducts();
                 } else {
-                    alert('Error: ' + result.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.error || 'Failed to update product',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
-                alert('Failed to update product');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update product: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         });
 
@@ -964,11 +1028,21 @@
                     document.getElementById('view-product-modal').style.display = 'flex';
                     document.getElementById('view-product-modal').classList.add('show');
                 } else {
-                    alert('Failed to load product details.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load product details',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
                 console.error('Error loading product:', error);
-                alert('Error loading product details.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error loading product details: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
 
@@ -979,9 +1053,43 @@
 
         // Delete product function
         async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+            // Get product name for confirmation message
+            let productName = 'this product';
+            try {
+                const productResponse = await fetch(`${API_BASE}/products/get_product.php?id=${productId}`);
+                const productData = await productResponse.json();
+                if (productData.success && productData.product) {
+                    productName = productData.product.name;
+                }
+            } catch (e) {
+                // If we can't get product name, just use default
+            }
+            
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete "${productName}"? This action cannot be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            });
+            
+            if (!result.isConfirmed) {
                 return;
             }
+            
+            // Show loading
+            Swal.fire({
+                title: 'Deleting...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             
             try {
                 // Backend expects 'id' not 'product_id', and can accept it as query param or in body
@@ -990,17 +1098,34 @@
                     headers: getAuthHeaders()
                 });
                 
-                const result = await response.json();
+                const deleteResult = await response.json();
                 
-                if (result.success) {
-                    alert('Product deleted successfully!');
+                if (deleteResult.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Product has been deleted successfully.',
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
                     loadAllProducts();
                 } else {
-                    alert('Error: ' + (result.error || 'Failed to delete product'));
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: deleteResult.error || 'Failed to delete product',
+                        confirmButtonColor: '#667eea'
+                    });
                 }
             } catch (error) {
                 console.error('Delete error:', error);
-                alert('Failed to delete product: ' + error.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to delete product: ' + error.message,
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
     </script>
