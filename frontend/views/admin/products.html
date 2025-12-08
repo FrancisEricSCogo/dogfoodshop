@@ -546,22 +546,36 @@
             // Remove leading slash if present
             let cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
             
-            // If it's an uploads path, construct backend storage URL
-            // Laravel storage is accessible at /storage/ after running php artisan storage:link
-            if (cleanPath.startsWith('uploads/products/')) {
-                // Extract filename from path (e.g., "uploads/products/filename.png" -> "products/filename.png")
-                const filename = cleanPath.replace('uploads/', '');
-                return `${backendBase}/storage/${filename}`;
+            // Extract filename from various path formats
+            let filename = '';
+            
+            // Handle different path formats:
+            // - "uploads/products/filename.png"
+            // - "/uploads/products/filename.png"
+            // - "products/filename.png"
+            // - "filename.png"
+            
+            if (cleanPath.includes('products/')) {
+                // Extract filename after "products/"
+                filename = cleanPath.split('products/').pop();
+            } else if (cleanPath.includes('/')) {
+                // Extract last part (filename)
+                filename = cleanPath.split('/').pop();
+            } else {
+                // Already just filename
+                filename = cleanPath;
             }
             
-            // For other upload paths
-            if (cleanPath.startsWith('uploads/')) {
-                const filename = cleanPath.replace('uploads/', '');
-                return `${backendBase}/storage/${filename}`;
-            }
+            // Try multiple possible URLs (in order of preference)
+            const possibleUrls = [
+                `${backendBase}/storage/products/${filename}`,  // Standard Laravel storage link
+                `${apiBase}/storage/products/${filename}`,     // Via API route we created
+                `${backendBase}/api/storage/products/${filename}`, // Alternative API route
+            ];
             
-            // Fallback: try direct path
-            return `${backendBase}/storage/${cleanPath}`;
+            // Return first URL (browser will try to load it)
+            // If it fails, the onerror handler will show emoji
+            return possibleUrls[0];
         }
         
         // Load all products for admin
