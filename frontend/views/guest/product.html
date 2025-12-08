@@ -383,6 +383,9 @@
     </main>
 
     <script>
+        // Define API base URL
+        const API_BASE = 'https://dogfoodshop.ccs4thyear.com/api';
+        
         let productId = null;
 
         async function loadProduct() {
@@ -396,7 +399,7 @@
                     return;
                 }
 
-                const response = await fetch(`https://dogfoodshop.ccs4thyear.com/api/products/get_product.php?id=${productId}`);
+                const response = await fetch(`${API_BASE}/products/get_product.php?id=${productId}`);
                 const data = await response.json();
 
                 if (data.success && data.product) {
@@ -437,8 +440,7 @@
                     filename = filename.split('?')[0].split('#')[0];
                     
                     // Construct URL using backend API
-                    const apiBase = window.API_BASE || 'https://dogfoodshop.ccs4thyear.com/api';
-                    imageSrc = `${apiBase}/storage/products/${filename}`;
+                    imageSrc = `${API_BASE}/storage/products/${filename}`;
                 }
                 
                 const img = document.createElement('img');
