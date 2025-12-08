@@ -566,16 +566,12 @@
                 filename = cleanPath;
             }
             
-            // Try multiple possible URLs (in order of preference)
-            const possibleUrls = [
-                `${backendBase}/storage/products/${filename}`,  // Standard Laravel storage link
-                `${apiBase}/storage/products/${filename}`,     // Via API route we created
-                `${backendBase}/api/storage/products/${filename}`, // Alternative API route
-            ];
+            // The route is now in api.php, so it's accessible at:
+            // https://dogfoodshop.ccs4thyear.com/api/storage/products/filename
+            // This matches the route we added to api.php
+            const imageUrl = `${apiBase}/storage/products/${filename}`;
             
-            // Return first URL (browser will try to load it)
-            // If it fails, the onerror handler will show emoji
-            return possibleUrls[0];
+            return imageUrl;
         }
         
         // Load all products for admin
