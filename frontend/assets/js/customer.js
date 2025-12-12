@@ -74,7 +74,46 @@ async function addToCart(productId) {
         productName = nameEl ? nameEl.textContent.trim() : 'Product';
         price = priceEl ? parseFloat(priceEl.textContent.replace(/[₱$,]/g, '')) : 0;
         stock = stockEl ? parseInt(stockEl.textContent.match(/\d+/)?.[0] || 0) : 0;
-        quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+        quantity = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
+        
+        // Validate quantity
+        if (quantity < 1) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Quantity',
+                    text: 'Quantity must be at least 1.',
+                    confirmButtonColor: '#4f46e5'
+                });
+            } else {
+                alert('Quantity must be at least 1.');
+            }
+            if (qtyInput) qtyInput.value = 1;
+            if (addButton) {
+                addButton.disabled = false;
+                addButton.innerHTML = originalText;
+            }
+            return;
+        }
+        
+        if (quantity > stock) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Insufficient Stock',
+                    html: `Only <strong>${stock}</strong> item(s) available in stock. Please reduce the quantity.`,
+                    confirmButtonColor: '#4f46e5'
+                });
+            } else {
+                alert(`Only ${stock} item(s) available in stock.`);
+            }
+            if (qtyInput) qtyInput.value = stock;
+            if (addButton) {
+                addButton.disabled = false;
+                addButton.innerHTML = originalText;
+            }
+            return;
+        }
     } else {
         // Fallback: fetch product details
         try {
