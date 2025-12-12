@@ -430,8 +430,9 @@
                 <div class="product-actions">
                     <div class="quantity-selector">
                         <label>Quantity:</label>
-                        <input type="number" id="productQuantity" min="1" value="1">
+                        <input type="number" id="productQuantity" min="1" value="1" onchange="validateProductQuantity()" oninput="validateProductQuantity()">
                     </div>
+                    <div id="quantityError" style="display: none; color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 3px solid #ef4444;"></div>
                     <button onclick="addToCartFromProduct()" class="buy-button" id="buyButton">
                         🛒 Add to Cart
                     </button>
@@ -578,6 +579,33 @@
             document.getElementById('error-state').style.display = 'block';
         }
 
+        function validateProductQuantity() {
+            const quantityInput = document.getElementById('productQuantity');
+            const quantityError = document.getElementById('quantityError');
+            const quantity = parseInt(quantityInput.value) || 0;
+            
+            if (!currentProduct) return;
+            
+            quantityError.style.display = 'none';
+            quantityError.textContent = '';
+            
+            if (quantity < 1) {
+                quantityError.textContent = '⚠️ Quantity must be at least 1.';
+                quantityError.style.display = 'block';
+                quantityInput.value = 1;
+                return false;
+            }
+            
+            if (quantity > currentProduct.stock) {
+                quantityError.textContent = `⚠️ Only ${currentProduct.stock} item(s) available in stock. Please reduce the quantity.`;
+                quantityError.style.display = 'block';
+                quantityInput.value = currentProduct.stock;
+                return false;
+            }
+            
+            return true;
+        }
+
         async function addToCartFromProduct() {
             if (!currentProduct) return;
 
@@ -592,10 +620,28 @@
             }
 
             const quantityInput = document.getElementById('productQuantity');
-            const quantity = parseInt(quantityInput.value) || 1;
+            const quantity = parseInt(quantityInput.value) || 0;
 
-            if (quantity < 1 || quantity > currentProduct.stock) {
-                alert('Invalid quantity. Please enter a valid amount.');
+            // Validate quantity
+            if (quantity < 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Quantity',
+                    text: 'Quantity must be at least 1.',
+                    confirmButtonColor: '#4f46e5'
+                });
+                quantityInput.value = 1;
+                return;
+            }
+
+            if (quantity > currentProduct.stock) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Insufficient Stock',
+                    html: `Only <strong>${currentProduct.stock}</strong> item(s) available in stock. Please reduce the quantity.`,
+                    confirmButtonColor: '#4f46e5'
+                });
+                quantityInput.value = currentProduct.stock;
                 return;
             }
 
