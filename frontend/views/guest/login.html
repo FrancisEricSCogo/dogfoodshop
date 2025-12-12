@@ -216,9 +216,10 @@
                     <label>Username or Email</label>
                     <input type="text" name="username" placeholder="Enter your username or email" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label>Password</label>
-                    <input type="password" name="password" placeholder="Enter your password" required>
+                    <input type="password" name="password" id="password" placeholder="Enter your password" required style="padding-right: 45px;">
+                    <span id="togglePassword" style="position: absolute; right: 16px; top: 42px; cursor: pointer; color: #64748b; font-size: 1.2rem; user-select: none;">👁️</span>
                 </div>
                 <div style="text-align: right; margin-bottom: 12px;">
                     <a href="forgot_password.html" style="font-size: 0.9rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">Forgot password?</a>
@@ -356,6 +357,19 @@
                     confirmButtonColor: '#ef4444',
                     confirmButtonText: 'OK'
                 });
+            }
+        });
+
+        // Password toggle functionality
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePassword');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
             }
         });
 
