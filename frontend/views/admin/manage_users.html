@@ -956,6 +956,9 @@
             document.getElementById('edit_role').value = role;
             document.getElementById('edit_password').value = '';
             
+            // Store original role for comparison
+            document.getElementById('edit_user_id').setAttribute('data-original-role', role);
+            
             // Show/hide super admin banner
             const banner = document.getElementById('super-admin-banner');
             if (userId == 1) {
@@ -1156,12 +1159,51 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    await Swal.fire({
-                        title: 'Updated!',
-                        text: 'User has been updated successfully.',
-                        icon: 'success',
-                        confirmButtonColor: '#10b981'
-                    });
+                    // Check if role was changed
+                    const originalRole = document.getElementById('edit_user_id').getAttribute('data-original-role');
+                    const newRole = formData.role;
+                    const roleChanged = originalRole && newRole && originalRole !== newRole;
+                    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    const isCurrentUser = currentUser.id == userId;
+                    
+                    if (roleChanged && isCurrentUser) {
+                        // If the current logged-in user's role was changed, update localStorage and warn them
+                        const updatedUser = { ...currentUser, ...result.user };
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
+                        
+                        await Swal.fire({
+                            title: 'Role Updated!',
+                            html: `<div style="text-align: center;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                                <p style="font-size: 1.1rem; color: #64748b; margin-bottom: 1rem;">Your role has been changed from <strong>${originalRole}</strong> to <strong>${newRole}</strong>.</p>
+                                <p style="font-size: 0.95rem; color: #94a3b8;">Please refresh the page or log out and log back in to see the updated dashboard.</p>
+                            </div>`,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981',
+                            confirmButtonText: 'Refresh Page'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else if (roleChanged) {
+                        // Role changed for another user
+                        await Swal.fire({
+                            title: 'Updated!',
+                            html: `<div style="text-align: center;">
+                                <p style="font-size: 1rem; color: #64748b;">User role changed from <strong>${originalRole}</strong> to <strong>${newRole}</strong>.</p>
+                                <p style="font-size: 0.9rem; color: #94a3b8; margin-top: 0.5rem;">The user will need to log out and log back in to see the updated dashboard.</p>
+                            </div>`,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        });
+                    } else {
+                        await Swal.fire({
+                            title: 'Updated!',
+                            text: 'User has been updated successfully.',
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        });
+                    }
+                    
                     closeEditModal();
                     // Reload users to get fresh data after role change
                     await loadUsers();
