@@ -712,6 +712,12 @@
         async function updateQuantity(productId, newQuantity) {
             // Prevent quantity from going below 1
             if (newQuantity < 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Quantity',
+                    text: 'Quantity must be at least 1. To remove the item, use the Remove button.',
+                    confirmButtonColor: '#4f46e5'
+                });
                 newQuantity = 1;
             }
             
@@ -729,7 +735,12 @@
                     const currentStock = data.product.stock;
                     
                     if (newQuantity > currentStock) {
-                        alert(`Only ${currentStock} item(s) available in stock.`);
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Insufficient Stock',
+                            html: `Only <strong>${currentStock}</strong> item(s) available in stock. Please reduce the quantity.`,
+                            confirmButtonColor: '#4f46e5'
+                        });
                         newQuantity = currentStock;
                     }
                     
@@ -749,7 +760,12 @@
                         updateCartCount();
                     }
                 } else {
-                    alert('Failed to fetch product information. Please try again.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to fetch product information. Please try again.',
+                        confirmButtonColor: '#4f46e5'
+                    });
                 }
             } catch (error) {
                 console.error('Error fetching product stock:', error);
@@ -758,7 +774,12 @@
                 const item = cart.find(i => i.product_id === productId);
                 if (item) {
                     if (newQuantity > (item.stock || 0)) {
-                        alert(`Only ${item.stock || 0} item(s) available in stock.`);
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Insufficient Stock',
+                            html: `Only <strong>${item.stock || 0}</strong> item(s) available in stock. Please reduce the quantity.`,
+                            confirmButtonColor: '#4f46e5'
+                        });
                         newQuantity = item.stock || 0;
                     }
                     item.quantity = newQuantity;
