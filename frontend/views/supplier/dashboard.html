@@ -499,13 +499,39 @@
                     document.getElementById('stat-cancelled').textContent = stats.cancelled;
                     
                     if (orders.length === 0) {
-                        list.innerHTML = `
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📦</div>
-                                <h3>No Orders Yet</h3>
-                                <p>Orders from customers will appear here</p>
-                            </div>
-                        `;
+                        // Check if supplier has any products
+                        try {
+                            const productsResponse = await fetch(`${API_BASE}/products/get_products.php?supplier_id=${getUser().id}`);
+                            const productsData = await productsResponse.json();
+                            const hasProducts = productsData.success && productsData.products && productsData.products.length > 0;
+                            
+                            if (!hasProducts) {
+                                list.innerHTML = `
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📦</div>
+                                        <h3>No Orders Yet</h3>
+                                        <p style="margin-bottom: 1rem;">You don't have any products yet. Add products to start receiving orders!</p>
+                                        <a href="products.html" class="btn btn-primary" style="text-decoration: none; display: inline-block; padding: 0.75rem 1.5rem; margin-top: 0.5rem;">➕ Add Your First Product</a>
+                                    </div>
+                                `;
+                            } else {
+                                list.innerHTML = `
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📦</div>
+                                        <h3>No Orders Yet</h3>
+                                        <p>Orders from customers will appear here once they purchase your products</p>
+                                    </div>
+                                `;
+                            }
+                        } catch (error) {
+                            list.innerHTML = `
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">📦</div>
+                                    <h3>No Orders Yet</h3>
+                                    <p>Orders from customers will appear here</p>
+                                </div>
+                            `;
+                        }
                         return;
                     }
                     
