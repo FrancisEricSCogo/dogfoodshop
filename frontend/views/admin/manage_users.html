@@ -847,8 +847,8 @@
                 if (aIsSuperAdmin && !bIsSuperAdmin) return -1;
                 if (!aIsSuperAdmin && bIsSuperAdmin) return 1;
                 
-                // Then by role: Admin → Customer → Supplier
-                const roleOrder = { 'admin': 1, 'customer': 2, 'supplier': 3 };
+                // Then by role: Admin → Supplier → Customer
+                const roleOrder = { 'admin': 1, 'supplier': 2, 'customer': 3 };
                 const aRole = roleOrder[a.role] || 99;
                 const bRole = roleOrder[b.role] || 99;
                 if (aRole !== bRole) return aRole - bRole;
@@ -1163,7 +1163,10 @@
                         confirmButtonColor: '#10b981'
                     });
                     closeEditModal();
-                    loadUsers();
+                    // Reload users to get fresh data after role change
+                    await loadUsers();
+                    // Refresh the display to show updated data
+                    displayUsers(allUsers, currentFilter);
                 } else {
                     await Swal.fire({
                         title: 'Error!',
