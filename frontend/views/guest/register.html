@@ -256,7 +256,6 @@
             cursor: not-allowed;
         }
 
-
         #message {
             margin-top: 20px;
             text-align: center;
@@ -473,6 +472,8 @@
                         errorMessage = `Server error (${response.status}): ${response.statusText}`;
                     }
                     messageDiv.innerHTML = `<p class="error">${errorMessage}</p>`;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                     return;
                 }
 
@@ -567,7 +568,6 @@
 
             adjustBodyPadding();
         })();
-
     </script>
 </body>
 </html>
