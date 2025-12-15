@@ -512,6 +512,62 @@
             }
         });
 
+        // Lightweight mobile nav for guest pages (same behavior as login page)
+        (function setupGuestMobileNav() {
+            const navContainer = document.querySelector('.navbar .container');
+            const navLinks = navContainer ? navContainer.querySelector('.nav-links') : null;
+            const breakpoint = 900;
+            if (!navContainer || !navLinks || navContainer.classList.contains('mobile-nav-ready')) return;
+
+            navContainer.classList.add('mobile-nav-ready');
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'nav-toggle';
+            toggleBtn.type = 'button';
+            toggleBtn.setAttribute('aria-label', 'Toggle navigation menu');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.innerHTML = '<span></span><span></span><span></span>';
+            navContainer.insertBefore(toggleBtn, navLinks);
+
+            const adjustBodyPadding = () => {
+                const nav = document.querySelector('.navbar');
+                if (!nav) return;
+                document.body.style.paddingTop = `${nav.offsetHeight + 12}px`;
+            };
+
+            const closeMenu = (instant = false) => {
+                navLinks.classList.remove('open');
+                toggleBtn.classList.remove('open');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                if (instant) {
+                    const prev = navLinks.style.transition;
+                    navLinks.style.transition = 'none';
+                    void navLinks.offsetHeight;
+                    navLinks.style.transition = prev;
+                }
+            };
+
+            toggleBtn.addEventListener('click', () => {
+                const isOpen = navLinks.classList.toggle('open');
+                toggleBtn.classList.toggle('open', isOpen);
+                toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                adjustBodyPadding();
+            });
+
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= breakpoint) closeMenu();
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > breakpoint) closeMenu(true);
+                adjustBodyPadding();
+            });
+
+            adjustBodyPadding();
+        })();
+
     </script>
 </body>
 </html>
