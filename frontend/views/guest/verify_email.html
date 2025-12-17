@@ -738,12 +738,83 @@
             body: JSON.stringify(data)
           });
 
+          if (!response.ok) {
+            let errorMessage = 'Failed to resend verification code.';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              errorMessage = `Server error (${response.status}): ${response.statusText}`;
+            }
+            await Swal.fire({
+              title: 'Resend Failed',
+              text: errorMessage,
+              icon: 'error',
+              confirmButtonColor: '#ef4444'
+            });
+            resendBtn.disabled = false;
+            resendBtn.textContent = 'Didn\'t receive the code? Resend verification email';
+            return;
+          }
+
           const responseText = await response.text();
           console.log('Resend response:', responseText);
           const result = JSON.parse(responseText);
           
           if (result.success) {
-            showAlert('Code Sent', 'A new verification code has been sent to your email. Please check your inbox.', 'success');
+            // Check if email was actually sent
+            if (!result.email_sent) {
+              // Email failed to send - show error with OTP
+              let errorMsg = 'Email could not be sent.';
+              if (result.email_error) {
+                errorMsg += ` Error: ${result.email_error}`;
+              }
+              
+              // If OTP is provided, show it to the user
+              if (result.otp) {
+                await Swal.fire({
+                  title: 'Email Sending Failed',
+                  html: `<div style="text-align:center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                    <p style="font-size: 1.05rem; color: #475569;">${errorMsg}</p>
+                    <p style="font-size: 1.1rem; color: #4f46e5; font-weight: 700; margin-top: 1rem;">Your OTP Code: <strong>${result.otp}</strong></p>
+                    <p style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">Please use this code to verify your account.</p>
+                  </div>`,
+                  icon: 'warning',
+                  confirmButtonColor: '#f59e0b',
+                  confirmButtonText: 'OK'
+                });
+                
+                // Auto-fill the OTP
+                otpInput.value = result.otp;
+                otpInput.focus();
+              } else {
+                await Swal.fire({
+                  title: 'Email Sending Failed',
+                  text: errorMsg,
+                  icon: 'error',
+                  confirmButtonColor: '#ef4444'
+                });
+              }
+              
+              resendBtn.disabled = false;
+              resendBtn.textContent = 'Didn\'t receive the code? Resend verification email';
+              return;
+            }
+            
+            // Email sent successfully
+            await Swal.fire({
+              title: 'Code Sent!',
+              html: `<div style="text-align:center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📧</div>
+                <p style="font-size: 1.05rem; color: #475569;">A new verification code has been sent to <strong>${userEmail}</strong>.</p>
+                <p style="font-size: 0.95rem; color: #64748b;">Please check your inbox.</p>
+              </div>`,
+              icon: 'success',
+              confirmButtonColor: '#10b981',
+              timer: 2000,
+              timerProgressBar: true
+            });
             
             // Clear the OTP input
             otpInput.value = '';
@@ -762,13 +833,23 @@
               }
             }, 1000);
           } else {
-            showAlert('Error', result.error || 'Failed to resend verification code.', 'error');
+            await Swal.fire({
+              title: 'Resend Failed',
+              text: result.error || 'Failed to resend verification code.',
+              icon: 'error',
+              confirmButtonColor: '#ef4444'
+            });
             resendBtn.disabled = false;
             resendBtn.textContent = 'Didn\'t receive the code? Resend verification email';
           }
         } catch (error) {
           console.error('Resend error:', error);
-          showAlert('Error', 'Failed to resend verification code. Please try again.', 'error');
+          await Swal.fire({
+            title: 'Error',
+            text: 'Failed to resend verification code. Please check your connection and try again.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444'
+          });
           resendBtn.disabled = false;
           resendBtn.textContent = 'Didn\'t receive the code? Resend verification email';
         }
