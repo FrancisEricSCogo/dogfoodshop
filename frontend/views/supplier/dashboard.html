@@ -466,12 +466,28 @@
         
         // Override loadSupplierOrders to use modern design
         async function loadSupplierOrdersModern() {
+            const user = getUser();
+            
+            // Diagnostic: Log user info
+            console.log('🔍 Supplier Orders Diagnostic:', {
+                'Your User ID': user ? user.id : 'Not logged in',
+                'Your Username': user ? user.username : 'Not logged in',
+                'Your Role': user ? user.role : 'Not logged in'
+            });
+            
             try {
                 const response = await fetch(`${API_BASE}/orders/get_orders.php`, {
                     headers: getAuthHeaders()
                 });
                 
                 const data = await response.json();
+                
+                // Diagnostic: Log orders response
+                console.log('📦 Orders API Response:', {
+                    'Success': data.success,
+                    'Order Count': data.orders ? data.orders.length : 0
+                });
+                
                 const list = document.getElementById('orders-list');
                 
                 if (data.success) {
@@ -501,7 +517,9 @@
                     if (orders.length === 0) {
                         // Check if supplier has any products
                         try {
-                            const productsResponse = await fetch(`${API_BASE}/products/get_products.php?supplier_id=${getUser().id}`);
+                            const productsResponse = await fetch(`${API_BASE}/products/get_products.php?supplier_id=${getUser().id}`, {
+                                headers: getAuthHeaders()
+                            });
                             const productsData = await productsResponse.json();
                             const hasProducts = productsData.success && productsData.products && productsData.products.length > 0;
                             
