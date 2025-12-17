@@ -665,81 +665,29 @@
           const result = JSON.parse(responseText);
           
           if (result.success) {
-            // Auto-login the user after verification
-            try {
-              // Get registration data to login
-              const registrationData = sessionStorage.getItem('registrationData');
-              if (registrationData) {
-                const regData = JSON.parse(registrationData);
-                
-                // Attempt to login with the registered credentials
-                const loginResponse = await fetch('https://dogfoodshop.ccs4thyear.com/api/auth/login.php', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    username: regData.username,
-                    password: regData.password
-                  })
-                });
-                
-                const loginResult = await loginResponse.json();
-                
-                if (loginResult.success) {
-                  // Store token and user data
-                  localStorage.setItem('token', loginResult.user.token);
-                  localStorage.setItem('user', JSON.stringify(loginResult.user));
-                  
-                  // Clear registration data
-                  sessionStorage.removeItem('registrationEmail');
-                  sessionStorage.removeItem('registrationData');
-                  
-                  // Show success and redirect to profile
-                  await Swal.fire({
-                    title: 'Email Verified!',
-                    html: `<div style="text-align:center;">
-                      <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
-                      <p style="font-size: 1.1rem; color: #64748b;">Your account has been verified successfully!</p>
-                      <p style="font-size: 0.9rem; color: #94a3b8; margin-top: 0.5rem;">Redirecting to your profile...</p>
-                    </div>`,
-                    icon: 'success',
-                    confirmButtonColor: '#10b981',
-                    timer: 2000,
-                    timerProgressBar: true,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                  });
-                  
-                  // Redirect to profile page based on role
-                  const role = loginResult.user.role;
-                  if (role === 'admin') {
-                    window.location.href = '../admin/profile.html';
-                  } else if (role === 'supplier') {
-                    window.location.href = '../supplier/profile.html';
-                  } else {
-                    window.location.href = '../customer/profile.html';
-                  }
-                  return;
-                }
-              }
-            } catch (loginError) {
-              console.error('Auto-login error:', loginError);
-              // If auto-login fails, redirect to login page
-              showAlert('Email Verified', 'Your email has been verified successfully. Please login to continue.', 'success');
-              sessionStorage.removeItem('registrationEmail');
-              sessionStorage.removeItem('registrationData');
-              setTimeout(() => {
-                window.location.href = 'login.html';
-              }, 2000);
-              return;
-            }
-            
-            // Fallback if auto-login doesn't work
-            showAlert('Email Verified', 'Your email has been verified successfully. Please login to continue.', 'success');
+            // Clear registration data
             sessionStorage.removeItem('registrationEmail');
             sessionStorage.removeItem('registrationData');
-            setTimeout(() => {
-              window.location.href = 'login.html';
-            }, 2000);
+            
+            // Show success message and redirect to login
+            await Swal.fire({
+              title: 'Account Verified!',
+              html: `<div style="text-align:center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                <p style="font-size: 1.1rem; color: #64748b; font-weight: 600;">Your account has been verified and registered successfully!</p>
+                <p style="font-size: 0.95rem; color: #94a3b8; margin-top: 0.5rem;">Please login to continue.</p>
+              </div>`,
+              icon: 'success',
+              confirmButtonColor: '#4f46e5',
+              confirmButtonText: 'Go to Login',
+              timer: 3000,
+              timerProgressBar: true,
+              allowOutsideClick: false,
+              allowEscapeKey: false
+            });
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
           } else {
             showAlert('Verification Failed', result.error || 'Invalid verification code. Please try again.', 'error');
             verifyBtn.disabled = false;
