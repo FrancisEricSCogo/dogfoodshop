@@ -555,14 +555,35 @@
             const user = getUser();
             if (!user) return;
             
+            // Diagnostic: Log user info
+            console.log('🔍 Supplier Diagnostic:', {
+                'Your User ID': user.id,
+                'Your Username': user.username,
+                'Your Role': user.role,
+                'API URL': user.role === 'admin' 
+                    ? `${API_BASE}/products/get_products.php`
+                    : `${API_BASE}/products/get_products.php?supplier_id=${user.id}`
+            });
+            
             try {
-                // Admin should see all products, suppliers see only their own
+                // Admin should see all products, suppliers see all products (not filtered by supplier_id)
+                // This allows users who changed from admin/customer to supplier to see all data
                 const url = user.role === 'admin' 
                     ? `${API_BASE}/products/get_products.php`
                     : `${API_BASE}/products/get_products.php?supplier_id=${user.id}`;
                 
-                const response = await fetch(url);
+                // Send auth token so backend knows user is authenticated supplier
+                const response = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
                 const data = await response.json();
+                
+                // Diagnostic: Log API response
+                console.log('📦 Products API Response:', {
+                    'Success': data.success,
+                    'Product Count': data.products ? data.products.length : 0,
+                    'Products': data.products ? data.products.map(p => ({ id: p.id, name: p.name, supplier_id: p.supplier_id })) : []
+                });
                 
                 const list = document.getElementById('products-list');
                 
