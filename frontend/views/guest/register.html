@@ -263,24 +263,177 @@
         }
 
         @media (max-width: 768px) {
+            .hero-section {
+                padding: 80px 15px 50px;
+            }
+
             .hero-section h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+                margin-bottom: 15px;
             }
 
             .hero-section p {
-                font-size: 1.1rem;
+                font-size: 1rem;
+                line-height: 1.6;
             }
 
             .register-container {
-                padding: 30px 20px;
+                padding: 25px 18px;
+                margin: 0 10px 40px;
+            }
+
+            .register-header {
+                margin-bottom: 30px;
+            }
+
+            .form-logo {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 15px;
             }
 
             .register-header h1 {
-                font-size: 2rem;
+                font-size: 1.75rem;
+                margin-bottom: 8px;
+            }
+
+            .register-header p {
+                font-size: 0.9rem;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+                margin-bottom: 6px;
+            }
+
+            .form-group input[type="text"],
+            .form-group input[type="email"],
+            .form-group input[type="tel"],
+            .form-group input[type="password"] {
+                padding: 14px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+                border-width: 2px;
             }
 
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-row .form-group {
+                margin-bottom: 18px;
+            }
+
+            .file-upload-group {
+                margin-bottom: 18px;
+            }
+
+            .file-upload-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .file-upload-wrapper input[type="file"] {
+                width: 100%;
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            .file-upload-wrapper .file-name {
+                font-size: 0.85rem;
+                text-align: center;
+            }
+
+            .file-upload-note {
+                font-size: 0.8rem;
+                margin-top: 6px;
+            }
+
+            .form-group[style*="position: relative"] {
+                position: relative !important;
+            }
+
+            .form-group[style*="position: relative"] input[type="password"] {
+                padding-right: 50px !important;
+            }
+
+            .form-group[style*="position: relative"] span[id*="toggle"] {
+                right: 18px !important;
+                top: 45px !important;
+                font-size: 1.3rem !important;
+                padding: 8px;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .terms-checkbox {
+                margin-bottom: 25px;
+                gap: 12px;
+            }
+
+            .terms-checkbox input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+                margin-top: 2px;
+                flex-shrink: 0;
+            }
+
+            .terms-checkbox label {
+                font-size: 0.85rem;
+                line-height: 1.6;
+            }
+
+            .btn-create-account {
+                padding: 16px;
+                font-size: 1rem;
+                margin-top: 10px;
+            }
+
+            #message {
+                margin-top: 15px;
+                font-size: 0.9rem;
+            }
+
+            /* Better spacing for email warning */
+            .form-group small {
+                display: block;
+                margin-top: 6px;
+                font-size: 0.8rem;
+                line-height: 1.4;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 60px 12px 40px;
+            }
+
+            .hero-section h1 {
+                font-size: 1.75rem;
+            }
+
+            .hero-section p {
+                font-size: 0.95rem;
+            }
+
+            .register-container {
+                padding: 20px 15px;
+                margin: 0 8px 30px;
+            }
+
+            .register-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-group input[type="text"],
+            .form-group input[type="email"],
+            .form-group input[type="tel"],
+            .form-group input[type="password"] {
+                padding: 15px 16px;
             }
         }
     </style>
