@@ -323,11 +323,12 @@
                             title: 'Verify Your Email',
                             html: `<div style="text-align: center;">
                                 <div style="font-size: 3rem; margin-bottom: 1rem;">📧</div>
-                                <p style="font-size: 1.05rem; color: #64748b;">Please verify your account first to continue.</p>
+                                <p style="font-size: 1.05rem; color: #64748b; font-weight: 600;">Please verify your account first!</p>
+                                <p style="font-size: 0.95rem; color: #94a3b8; margin-top: 0.5rem;">Check your email for the verification code to activate your account.</p>
                             </div>`,
                             icon: 'info',
                             confirmButtonColor: '#4f46e5',
-                            confirmButtonText: 'Verify Now'
+                            confirmButtonText: 'Go to Verification'
                         });
                         window.location.href = `verify_email.html?email=${emailParam}`;
                         return;
