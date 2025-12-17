@@ -256,6 +256,7 @@
             cursor: not-allowed;
         }
 
+
         #message {
             margin-top: 20px;
             text-align: center;
@@ -472,14 +473,51 @@
                         errorMessage = `Server error (${response.status}): ${response.statusText}`;
                     }
                     messageDiv.innerHTML = `<p class="error">${errorMessage}</p>`;
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
                     return;
                 }
 
                 const result = await response.json();
 
                 if (result.success) {
+                    // Check if email was sent successfully
+                    if (!result.email_sent) {
+                        // Email failed to send - show error with OTP for manual entry
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                        
+                        let errorMsg = 'Registration successful, but email could not be sent.';
+                        if (result.email_error) {
+                            errorMsg += `<br><small style="color: #ef4444;">Error: ${result.email_error}</small>`;
+                        }
+                        
+                        // If OTP is provided (for testing), show it
+                        if (result.otp) {
+                            errorMsg += `<br><br><strong style="color: #4f46e5;">Your OTP Code: ${result.otp}</strong><br><small>Please use this code to verify your account.</small>`;
+                        }
+                        
+                        await Swal.fire({
+                            title: 'Email Sending Failed',
+                            html: `<div style="text-align:center;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                                <p style="font-size: 1.05rem; color: #475569;">${errorMsg}</p>
+                                ${result.otp ? `<p style="font-size: 0.9rem; color: #64748b; margin-top: 1rem;">You can still verify your account using the OTP above.</p>` : ''}
+                            </div>`,
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: result.otp ? 'Continue to Verification' : 'OK'
+                        });
+                        
+                        if (result.otp) {
+                            // Store email and registration data for verify page
+                            sessionStorage.setItem('registrationEmail', userEmail);
+                            sessionStorage.setItem('registrationData', JSON.stringify(registrationData));
+                            const verifyUrl = `verify_email.html?email=${encodeURIComponent(userEmail)}`;
+                            window.location.href = verifyUrl;
+                        }
+                        return;
+                    }
+                    
+                    // Email sent successfully
                     submitBtn.innerHTML = '<span class="loading-spinner"></span>Redirecting...';
                     // Store email and registration data for verify page
                     sessionStorage.setItem('registrationEmail', userEmail);
@@ -568,6 +606,7 @@
 
             adjustBodyPadding();
         })();
+
     </script>
 </body>
 </html>
