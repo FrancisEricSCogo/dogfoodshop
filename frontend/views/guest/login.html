@@ -166,20 +166,79 @@
         }
 
         @media (max-width: 768px) {
+            .hero-section {
+                padding: 80px 15px 50px;
+            }
+
             .hero-section h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+                margin-bottom: 15px;
             }
 
             .hero-section p {
-                font-size: 1.1rem;
+                font-size: 1rem;
+                line-height: 1.6;
             }
 
             .login-container {
-                padding: 30px 20px;
+                padding: 25px 18px;
+                margin: 0 10px 40px;
+            }
+
+            .login-header {
+                margin-bottom: 30px;
+            }
+
+            .form-logo {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 15px;
             }
 
             .login-header h1 {
-                font-size: 2rem;
+                font-size: 1.75rem;
+                margin-bottom: 8px;
+            }
+
+            .login-header p {
+                font-size: 0.9rem;
+            }
+
+            .form-group input {
+                padding: 14px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .btn-login {
+                padding: 16px;
+                font-size: 1rem;
+            }
+
+            .login-footer {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 60px 12px 40px;
+            }
+
+            .hero-section h1 {
+                font-size: 1.75rem;
+            }
+
+            .hero-section p {
+                font-size: 0.95rem;
+            }
+
+            .login-container {
+                padding: 20px 15px;
+                margin: 0 8px 30px;
+            }
+
+            .login-header h1 {
+                font-size: 1.5rem;
             }
         }
     </style>
