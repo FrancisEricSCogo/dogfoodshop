@@ -6,6 +6,7 @@
   <title>Verify Email - Dog Food Shop</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/images/logo.svg">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     * {
@@ -22,19 +23,11 @@
       line-height: 1.6;
     }
 
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 100vh;
-    }
-
     .hero-section {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 3rem;
+      color: white;
+      padding: 100px 20px 60px;
+      text-align: center;
       position: relative;
       overflow: hidden;
     }
@@ -46,204 +39,68 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-      opacity: 0.4;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/><circle cx="900" cy="800" r="80" fill="url(%23a)"/></svg>');
+      opacity: 0.3;
     }
 
-    .hero-content {
-      text-align: center;
-      z-index: 2;
-      max-width: 400px;
-    }
-
-    .hero-logo {
-      font-size: 3rem;
+    .hero-section h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
       font-weight: 800;
-      margin-bottom: 1rem;
-      color: #ffffff;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-logo::before {
-      content: "🐕";
-      margin-right: 0.5rem;
-      color: #fbbf24;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      font-size: 0.9em;
-      display: inline-block;
-    }
-
-    .hero-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-      color: #ffffff;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-description {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      line-height: 1.6;
-      color: #f1f5f9;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .hero-features {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      align-items: flex-start;
-      text-align: left;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 1rem;
-      color: #f8fafc;
-      font-weight: 500;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      background: rgba(255, 255, 255, 0.1);
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .feature-icon {
-      width: 24px;
-      height: 24px;
-      background: #10b981;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: bold;
-      color: white;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-    }
-
-    .form-section {
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
       position: relative;
-      border-left: 1px solid #e2e8f0;
+      z-index: 1;
     }
 
-    .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 2rem 3rem 1rem;
-      border-bottom: 1px solid #e2e8f0;
-      background: rgba(248, 250, 252, 0.8);
-      backdrop-filter: blur(10px);
-    }
-
-    .nav-brand {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #4f46e5;
-    }
-
-    .nav-brand::before {
-      content: "🐕";
-      margin-right: 0.5rem;
-      color: #fbbf24;
-      font-size: 1em;
-      display: inline-block;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 1.5rem;
-    }
-
-    .nav-group {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .nav-link {
-      text-decoration: none;
-      color: #64748b;
-      font-weight: 500;
-      font-size: 0.9rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      transition: all 0.3s ease;
-      border: none;
-      background: none;
-      cursor: pointer;
-    }
-
-    .nav-link:hover {
-      color: #4f46e5;
-      background: rgba(79, 70, 229, 0.1);
-    }
-
-    .btn-primary {
-      background: #4f46e5;
-      color: white !important;
-      font-weight: 600;
-    }
-
-    .btn-primary:hover {
-      background: #4338ca;
-    }
-
-    .form-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 3rem;
-      max-width: 480px;
+    .hero-section p {
+      font-size: 1.15rem;
+      opacity: 0.95;
+      max-width: 600px;
       margin: 0 auto;
-      width: 100%;
-      overflow-y: auto;
+      position: relative;
+      z-index: 1;
+      line-height: 1.7;
     }
 
-    .form-header {
+    .verify-container {
+      max-width: 500px;
+      margin: -40px auto 50px;
+      background: white;
+      padding: 40px 35px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .verify-header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 30px;
     }
 
     .email-icon {
-      width: 64px;
-      height: 64px;
+      width: 70px;
+      height: 70px;
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1.5rem;
+      margin: 0 auto 20px;
       box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+      font-size: 2rem;
     }
 
-    .email-icon::before {
-      content: "📧";
-      font-size: 1.75rem;
-    }
-
-    .form-title {
-      font-size: 2.2rem;
-      font-weight: 700;
+    .verify-header h2 {
+      font-size: 1.8rem;
       color: #1e293b;
-      margin-bottom: 0.5rem;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
-    .form-subtitle {
-      font-size: 1rem;
+    .verify-header p {
       color: #64748b;
-      margin-bottom: 1rem;
+      font-size: 1rem;
     }
 
     .email-display {
@@ -251,17 +108,16 @@
       color: #4f46e5;
       font-weight: 600;
       background: rgba(79, 70, 229, 0.1);
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      margin: 0 auto;
+      padding: 10px 18px;
+      border-radius: 10px;
+      margin-top: 12px;
       display: inline-block;
     }
 
     .verify-form {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      gap: 20px;
     }
 
     .form-group {
@@ -272,52 +128,50 @@
     .form-label {
       font-weight: 600;
       color: #374151;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
     }
 
     .otp-input {
-      padding: 1.25rem;
+      padding: 16px;
       border: 2px solid #e2e8f0;
       border-radius: 12px;
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       font-family: 'Inter', monospace;
       background: #ffffff;
       color: #1e293b;
       transition: all 0.3s ease;
       outline: none;
       text-align: center;
-      letter-spacing: 0.25rem;
+      letter-spacing: 0.3rem;
       font-weight: 600;
-      caret-color: #1e293b !important; /* Dark color for visibility on white background */
+      caret-color: #1e293b !important;
     }
 
     .otp-input:focus {
       border-color: #4f46e5;
       background: #ffffff;
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-      color: #1e293b;
-      caret-color: #1e293b !important; /* Dark color for visibility */
     }
 
     .otp-input::placeholder {
       color: #94a3b8;
       font-weight: 400;
-      letter-spacing: 0.1rem;
+      letter-spacing: 0.2rem;
     }
 
     .input-hint {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #64748b;
       text-align: center;
-      margin-top: 0.5rem;
+      margin-top: 8px;
     }
 
     .verify-btn {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
       border: none;
-      padding: 1.25rem 2rem;
+      padding: 16px;
       border-radius: 12px;
       font-size: 1.1rem;
       font-weight: 600;
@@ -325,15 +179,12 @@
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+      margin-top: 10px;
     }
 
     .verify-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 12px 35px rgba(79, 70, 229, 0.4);
-    }
-
-    .verify-btn:active {
-      transform: translateY(0);
     }
 
     .verify-btn:disabled {
@@ -344,9 +195,9 @@
 
     .resend-section {
       text-align: center;
-      padding: 1rem 0;
+      padding-top: 20px;
       border-top: 1px solid #e2e8f0;
-      margin-top: 1rem;
+      margin-top: 25px;
     }
 
     .resend-btn {
@@ -356,7 +207,7 @@
       font-weight: 600;
       cursor: pointer;
       font-size: 0.95rem;
-      padding: 0.5rem 1rem;
+      padding: 10px 16px;
       border-radius: 8px;
       transition: all 0.3s ease;
     }
@@ -372,7 +223,7 @@
 
     .login-link {
       text-align: center;
-      margin-top: 1.5rem;
+      margin-top: 20px;
       font-size: 0.95rem;
       color: #64748b;
     }
@@ -387,111 +238,118 @@
       text-decoration: underline;
     }
 
-    @media (max-width: 1024px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-
+    @media (max-width: 768px) {
       .hero-section {
-        min-height: 40vh;
-        padding: 2rem;
+        padding: 80px 15px 50px;
       }
 
-      .form-content {
-        padding: 2rem;
+      .hero-section h1 {
+        font-size: 2rem;
+      }
+
+      .hero-section p {
+        font-size: 1rem;
+      }
+
+      .verify-container {
+        margin: -30px 15px 40px;
+        padding: 30px 20px;
+      }
+
+      .verify-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .email-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.6rem;
+      }
+
+      .otp-input {
+        font-size: 1.2rem;
+        padding: 14px;
+        letter-spacing: 0.2rem;
+      }
+
+      .verify-btn {
+        padding: 14px;
+        font-size: 1rem;
       }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 480px) {
       .hero-section {
-        min-height: 35vh;
-        padding: 1.5rem;
+        padding: 70px 12px 40px;
       }
 
-      .form-content {
-        padding: 1rem 1.5rem 2rem;
+      .hero-section h1 {
+        font-size: 1.75rem;
       }
 
-      .top-nav {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
+      .verify-container {
+        margin: -25px 10px 30px;
+        padding: 25px 18px;
+      }
+
+      .email-display {
+        font-size: 0.9rem;
+        padding: 8px 14px;
+        word-break: break-all;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-logo">Dog Food Shop</h1>
-        <h1 class="hero-title">Almost There!</h1>
-        <p class="hero-description">Just one more step to complete your account setup and start shopping for premium dog food.</p>
-        
-        <div class="hero-features">
-          <div class="feature-item">
-            <div class="feature-icon">📧</div>
-            <span>Check your email inbox</span>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">🔐</div>
-            <span>Enter the 6-digit verification code</span>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">✅</div>
-            <span>Complete your account verification</span>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">🚀</div>
-            <span>Start shopping for premium dog food</span>
-          </div>
-        </div>
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="logo">Dog Food Shop</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="register.html">Register</a>
+        <a href="login.html">Login</a>
       </div>
     </div>
+  </nav>
 
-    <div class="form-section">
-      <nav class="top-nav">
-        <div class="nav-brand">Dog Food Shop</div>
-        <div class="nav-links">
-          <div class="nav-group">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="register.html" class="nav-link">Register</a>
-            <a href="login.html" class="nav-link btn-primary">Login</a>
-          </div>
-        </div>
-      </nav>
+  <div class="hero-section">
+    <div class="container">
+      <h1>📧 Verify Your Email</h1>
+      <p>Enter the 6-digit verification code sent to your email address to complete your account registration.</p>
+    </div>
+  </div>
 
-      <div class="form-content">
-        <div class="form-header">
-          <div class="email-icon"></div>
-          <h1 class="form-title">Verify Your Email</h1>
-          <p class="form-subtitle">Enter the verification code sent to</p>
-          <div class="email-display" id="emailMessage">your email address</div>
+  <div class="container">
+    <div class="verify-container">
+      <div class="verify-header">
+        <div class="email-icon">📧</div>
+        <h2>Enter Verification Code</h2>
+        <p>We've sent a code to</p>
+        <div class="email-display" id="emailMessage">your email address</div>
+      </div>
+      
+      <form id="verifyForm" class="verify-form">
+        <div class="form-group">
+          <label class="form-label">6-Digit Verification Code</label>
+          <input type="tel" id="otpCode" name="otp_code" class="otp-input" 
+                 placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" required>
+          <div class="input-hint">Please check your email inbox for the OTP code</div>
         </div>
         
-        <form id="verifyForm" class="verify-form">
-          <div class="form-group">
-            <label class="form-label">6-Digit Verification Code</label>
-            <input type="tel" id="otpCode" name="otp_code" class="otp-input" 
-                   placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric" required>
-            <div class="input-hint">Please check your email account for the OTP to verify your account</div>
-          </div>
-          
-          <button type="submit" class="verify-btn" id="verifyBtn">
-            Verify Email Address
-          </button>
-        </form>
-        
-        <div class="resend-section">
-          <button id="resendBtn" class="resend-btn">
-            Didn't receive the code? Resend verification email
-          </button>
-        </div>
-        
-        <div class="login-link">
-          Already verified? 
-          <a href="login.html">Sign in to your account</a>
-        </div>
+        <button type="submit" class="verify-btn" id="verifyBtn">
+          Verify Email Address
+        </button>
+      </form>
+      
+      <div class="resend-section">
+        <button id="resendBtn" class="resend-btn">
+          Didn't receive the code? Resend verification email
+        </button>
+      </div>
+      
+      <div class="login-link">
+        Already verified? 
+        <a href="login.html">Sign in to your account</a>
       </div>
     </div>
   </div>
@@ -855,7 +713,46 @@
         }
       });
     });
+
+    // Mobile nav toggle
+    (function setupGuestMobileNav() {
+      const navContainer = document.querySelector('.navbar .container');
+      const navLinks = navContainer ? navContainer.querySelector('.nav-links') : null;
+      const breakpoint = 900;
+      if (!navContainer || !navLinks || navContainer.classList.contains('mobile-nav-ready')) return;
+      navContainer.classList.add('mobile-nav-ready');
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'nav-toggle';
+      toggleBtn.type = 'button';
+      toggleBtn.setAttribute('aria-label', 'Toggle navigation menu');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      toggleBtn.innerHTML = '<span></span><span></span><span></span>';
+      navContainer.insertBefore(toggleBtn, navLinks);
+      const closeMenu = (instant = false) => {
+        navLinks.classList.remove('open');
+        toggleBtn.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        if (instant) {
+          const prev = navLinks.style.transition;
+          navLinks.style.transition = 'none';
+          void navLinks.offsetHeight;
+          navLinks.style.transition = prev;
+        }
+      };
+      toggleBtn.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('open');
+        toggleBtn.classList.toggle('open', isOpen);
+        toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= breakpoint) closeMenu();
+        });
+      });
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > breakpoint) closeMenu(true);
+      });
+    })();
   </script>
 </body>
 </html>
-
